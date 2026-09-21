@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏆 Bar Chart Race Leaderboard · v23</title>
+  <style>
+    :root {
+      --font-placement: system-ui, 'Segoe UI', Roboto, sans-serif;
+      --font-names: system-ui, 'Segoe UI', Roboto, sans-serif;
+      --font-elim: system-ui, 'Segoe UI', Roboto, sans-serif;
+
+      /* TEXT SIZE MULTIPLIERS (adjustable in UI) */
+      --size-placement: 1;
+      --size-names: 1;
+      --size-elim: 1;
+
+      /* TEXT WEIGHT & STYLE (adjustable in UI) */
+      --weight-placement: 800;
+      --style-placement: normal;
+      --weight-names: 700;
+      --style-names: normal;
+      --weight-elim: 800;
+      --style-elim: normal;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      overflow-x: hidden;
+    }
+
+    .app {
+      max-width: 1300px;
+      width: 100%;
+      background: #161b22;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid #30363d;
+    }
+
+    h1 {
+      color: #f0f6fc;
+      font-size: 1.8rem;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .subhead {
+      color: #8b949e;
+      font-size: 0.9rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: flex-end;
+      background: #0d1117;
+      padding: 1.25rem;
+      border-radius: 1rem;
+      border: 1px solid #30363d;
+      margin-bottom: 1rem;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+
+    .field label {
+      color: #8b949e;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"] {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      padding: 0.55rem 0.75rem;
+      color: #f0f6fc;
+      font-size: 0.95rem;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .field input:focus { border-color: #f1c40f; }
+    .field input[type="text"] { width: 150px; }
+    .field input[type="number"] { width: 90px; }
+
+    .field input[type="color"] {
+      width: 60px;
+      height: 38px;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      background: #161b22;
+      cursor: pointer;
+      padding: 3px;
+    }
+    .field input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .field input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 0.3rem;
+    }
+
+    .checkbox-field {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding-bottom: 0.6rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .checkbox-field input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: #f1c40f;
+      cursor: pointer;
+    }
+    .checkbox-field span {
+      color: #c9d1d9;
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.6rem 1.1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-add { background: #238636; color: white; }
+    .btn-add:hover { background: #2ea043; }
+    .btn-update { background: #1f6feb; color: white; }
+    .btn-update:hover { background: #388bfd; }
+    .btn-advanced { background: #8957e5; color: white; }
+    .btn-advanced:hover { background: #a371f7; }
+    .btn-save { background: #1f6feb; color: white; }
+    .btn-save:hover { background: #388bfd; }
+    .btn-load { background: #0d9488; color: white; }
+    .btn-load:hover { background: #14b8a6; }
+    .btn-export { background: #ea580c; color: white; }
+    .btn-export:hover { background: #f97316; }
+
+    .btn-play {
+      background: #f1c40f;
+      color: #0d1117;
+      font-weight: 700;
+      padding: 0.7rem 2rem;
+      font-size: 1rem;
+    }
+    .btn-play:hover { background: #f39c12; }
+    .btn-play:disabled {
+      background: #30363d;
+      color: #6e7681;
+      cursor: not-allowed;
+    }
+
+    .btn-download {
+      background: #d946ef;
+      color: white;
+      font-weight: 700;
+      padding: 0.7rem 1.6rem;
+      font-size: 1rem;
+    }
+    .btn-download:hover { background: #e879f9; }
+    .btn-download:disabled {
+      background: #30363d;
+      color: #6e7681;
+      cursor: not-allowed;
+    }
+
+    .btn-reset {
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+    }
+    .btn-reset:hover { background: #30363d; }
+
+    .speed-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      background: #0d1117;
+      padding: 0.9rem 1.25rem;
+      border-radius: 1rem;
+      border: 1px solid #30363d;
+      margin-bottom: 1rem;
+    }
+
+    .speed-field {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .speed-field label {
+      color: #8b949e;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .speed-field input[type="number"] {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      padding: 0.4rem 0.6rem;
+      color: #f0f6fc;
+      font-size: 0.9rem;
+      width: 70px;
+      outline: none;
+    }
+    .speed-field input[type="number"]:focus { border-color: #f1c40f; }
+
+    .speed-field select {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      padding: 0.42rem 0.6rem;
+      color: #f0f6fc;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      min-width: 140px;
+      font-family: inherit;
+    }
+    .speed-field select:focus { border-color: #f1c40f; }
+
+    .speed-unit { color: #6e7681; font-size: 0.85rem; }
+
+    /* ---------- SIZE ROW ---------- */
+    .size-row {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      background: #0d1117;
+      padding: 0.9rem 1.25rem;
+      border-radius: 1rem;
+      border: 1px solid #30363d;
+      margin-bottom: 1rem;
+    }
+
+    .size-field {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .size-field label {
+      color: #8b949e;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .size-field input[type="range"] {
+      width: 130px;
+      height: 5px;
+      appearance: none;
+      -webkit-appearance: none;
+      background: #21262d;
+      border-radius: 10px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .size-field input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #f1c40f;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #161b22;
+      box-shadow: 0 0 6px rgba(241, 196, 15, 0.5);
+    }
+
+    .size-field input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      background: #f1c40f;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #161b22;
+      box-shadow: 0 0 6px rgba(241, 196, 15, 0.5);
+    }
+
+    .size-value {
+      color: #f1c40f;
+      font-weight: 700;
+      font-size: 0.85rem;
+      min-width: 45px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ---------- STYLE ROW ---------- */
+    .style-row {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      background: #0d1117;
+      padding: 0.9rem 1.25rem;
+      border-radius: 1rem;
+      border: 1px solid #30363d;
+      margin-bottom: 1rem;
+    }
+
+    .style-field {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .style-field label {
+      color: #8b949e;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .style-field select {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      padding: 0.42rem 0.6rem;
+      color: #f0f6fc;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      min-width: 130px;
+      font-family: inherit;
+    }
+    .style-field select:focus { border-color: #f1c40f; }
+
+    .action-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .preview-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 0.6rem;
+      padding: 0.4rem 0.6rem;
+      width: fit-content;
+    }
+    .preview-label {
+      color: #8b949e;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding-right: 0.3rem;
+    }
+    .preview-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #c9d1d9;
+      padding: 0.38rem 0.9rem;
+      border-radius: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .preview-btn:hover { background: #30363d; }
+    .preview-btn.active {
+      background: #f1c40f;
+      color: #0d1117;
+      border-color: #f1c40f;
+    }
+
+    .bars-area {
+      background: #0d1117;
+      border-radius: 1rem;
+      padding: 1.25rem;
+      border: 1px solid #30363d;
+      min-height: 180px;
+    }
+
+    .bars-header {
+      display: flex;
+      justify-content: space-between;
+      color: #6e7681;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0 0 0.75rem 0;
+      border-bottom: 1px solid #21262d;
+      margin-bottom: 0.75rem;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      padding: 0.15rem 0;
+    }
+
+    .bar-track {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .bar-bg {
+      flex: 1;
+      height: 32px;
+      background: transparent;
+      position: relative;
+      min-width: 0;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      position: relative;
+      transition: width 0.4s linear;
+      min-width: 0;
+    }
+
+    .bar-fill-content {
+      position: absolute;
+      right: 10px;
+      top: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      color: #0d1117;
+      font-weight: var(--weight-names);
+      font-style: var(--style-names);
+      font-size: 0.85rem;
+      text-shadow: 0 1px 1px rgba(255,255,255,0.25);
+      font-family: var(--font-names);
+    }
+
+    .athlete-name {
+      width: 140px;
+      padding-left: 0.85rem;
+      font-weight: var(--weight-names);
+      font-style: var(--style-names);
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+      font-family: var(--font-names);
+    }
+
+    .elim-tag {
+      color: #f85149;
+      font-size: 0.9rem;
+      font-weight: var(--weight-elim);
+      font-style: var(--style-elim);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding-left: 0.6rem;
+      flex-shrink: 0;
+      font-family: var(--font-elim);
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #6e7681;
+      padding: 2.5rem 1rem;
+      font-style: italic;
+      font-size: 0.95rem;
+    }
+
+    /* ============ FULLSCREEN RACE OVERLAY ============ */
+    .race-overlay {
+      position: fixed;
+      inset: 0;
+      background: #0d1117;
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      padding: 0.5rem 0 0.5rem 0;
+      overflow: hidden;
+      height: 100vh;
+    }
+    .race-overlay.active { display: flex; }
+
+    .race-bars {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      min-height: 0;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .race-rank-column {
+      width: 120px;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(to bottom, #6b7280 0%, #1f2937 100%);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .race-rank-box {
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--weight-placement);
+      font-style: var(--style-placement);
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+      letter-spacing: -0.02em;
+      font-family: var(--font-placement);
+      font-size: clamp(
+        calc(0.9rem * var(--size-placement)),
+        calc(85vh / var(--n, 8) * 0.48 * var(--size-placement)),
+        calc(3.6rem * var(--size-placement))
+      );
+    }
+
+    .race-bar-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .race-bar-row {
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      align-items: stretch;
+      will-change: transform;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .race-bar-track {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+
+    .race-bar-bg {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+    }
+
+    .race-bar-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      will-change: width;
+      min-width: 0;
+    }
+
+    /* Points inside the bar */
+    .race-bar-fill-content {
+      position: absolute;
+      right: 16px;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      color: #0d1117;
+      font-weight: var(--weight-names);
+      font-style: var(--style-names);
+      text-shadow: 0 1px 1px rgba(255,255,255,0.25);
+      font-family: var(--font-names);
+      font-size: clamp(
+        calc(1rem * var(--size-names)),
+        calc(82vh / var(--n, 8) * 0.42 * var(--size-names)),
+        calc(3.4rem * var(--size-names))
+      );
+    }
+
+    .race-info-group {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    /* Athlete name */
+    .race-athlete-name {
+      display: flex;
+      align-items: center;
+      padding-left: 14px;
+      font-weight: var(--weight-names);
+      font-style: var(--style-names);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: var(--font-names);
+      font-size: clamp(
+        calc(1.1rem * var(--size-names)),
+        calc(82vh / var(--n, 8) * 0.52 * var(--size-names)),
+        calc(4.4rem * var(--size-names))
+      );
+    }
+
+    /* ELIMINATED tag */
+    .race-elim-tag {
+      display: flex;
+      align-items: center;
+      color: #f85149;
+      font-weight: var(--weight-elim);
+      font-style: var(--style-elim);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      font-family: var(--font-elim);
+      font-size: clamp(
+        calc(1rem * var(--size-elim)),
+        calc(82vh / var(--n, 8) * 0.5 * var(--size-elim)),
+        calc(4rem * var(--size-elim))
+      );
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 1rem;
+      max-width: 1200px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #30363d;
+    }
+    .modal-header h2 {
+      color: #f0f6fc;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #8b949e;
+      font-size: 1.75rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 0.5rem;
+      transition: color 0.15s;
+    }
+    .modal-close:hover { color: #f0f6fc; }
+
+    .modal-body {
+      padding: 1.25rem 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-hint {
+      color: #8b949e;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background: rgba(137, 87, 229, 0.1);
+      border-left: 3px solid #8957e5;
+      border-radius: 0.35rem;
+      line-height: 1.5;
+    }
+    .modal-hint code {
+      background: rgba(255,255,255,0.08);
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      color: #f1c40f;
+    }
+
+    .paste-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .paste-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .paste-field label {
+      color: #8b949e;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .paste-field textarea {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      color: #f0f6fc;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      padding: 0.6rem 0.75rem;
+      min-height: 220px;
+      resize: vertical;
+      outline: none;
+      line-height: 1.5;
+      transition: border-color 0.2s;
+    }
+    .paste-field textarea:focus { border-color: #8957e5; }
+    .paste-field textarea::placeholder { color: #484f58; }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #30363d;
+      flex-wrap: wrap;
+    }
+
+    /* Export button pushed to the left of the footer */
+    #modalExport { margin-right: auto; }
+  </style>
+</head>
+<body>
+
+<div class="app" id="makerScreen">
+  <h1>Algicosathlon Leaderboard Maker</h1>
+  <div class="subhead">It's just a bar chart race, nothing else.</div>
+
+  <div class="input-row">
+    <div class="field">
+      <label>Athlete Name</label>
+      <input type="text" id="inputName" placeholder="e.g. White">
+    </div>
+    <div class="field">
+      <label>Color</label>
+      <input type="color" id="inputColor" value="#ffffff">
+    </div>
+    <div class="field">
+      <label>Points</label>
+      <input type="number" id="inputPoints" placeholder="0" min="0" value="0">
+    </div>
+    <div class="field">
+      <label>Rewarded Points</label>
+      <input type="number" id="inputReward" placeholder="0" min="0" value="0">
+    </div>
+    <div class="checkbox-field">
+      <input type="checkbox" id="inputEliminated">
+      <span>Eliminated?</span>
+    </div>
+    <div class="checkbox-field">
+      <input type="checkbox" id="inputAlreadyEliminated">
+      <span>Already Eliminated?</span>
+    </div>
+    <button class="btn btn-add" id="btnAdd">Add</button>
+    <button class="btn btn-update" id="btnUpdate">Update</button>
+    <button class="btn btn-advanced" id="btnAdvanced">Advanced</button>
+    <button class="btn btn-save" id="btnSave">Save</button>
+    <button class="btn btn-load" id="btnLoad">Load</button>
+    <input type="file" id="fileLoad" accept=".json,application/json" style="display:none;">
+  </div>
+
+  <div class="speed-row">
+    <div class="speed-field">
+      <label>Rank Swap</label>
+      <input type="number" id="inputSwapDuration" value="0.8" min="0.1" max="5" step="0.1">
+      <span class="speed-unit">sec</span>
+    </div>
+    <div class="speed-field">
+      <label>Points Grow</label>
+      <input type="number" id="inputGrowDuration" value="0.8" min="0.1" max="5" step="0.1">
+      <span class="speed-unit">sec</span>
+    </div>
+    <div class="speed-field">
+      <label>Points Easing</label>
+      <select id="inputEaseGrow">
+        <option value="linear">Linear</option>
+        <option value="ease">Ease</option>
+        <option value="easein">Ease In</option>
+        <option value="easeout">Ease Out</option>
+        <option value="easeinout">Ease In &amp; Out</option>
+        <option value="elastic">Elastic</option>
+        <option value="back">Back</option>
+        <option value="expo">Exponential</option>
+        <option value="sine">Sine</option>
+      </select>
+    </div>
+    <div class="speed-field">
+      <label>Rank Swap Easing</label>
+      <select id="inputEaseSwap">
+        <option value="linear">Linear</option>
+        <option value="ease">Ease</option>
+        <option value="easein">Ease In</option>
+        <option value="easeout">Ease Out</option>
+        <option value="easeinout">Ease In &amp; Out</option>
+        <option value="elastic">Elastic</option>
+        <option value="back">Back</option>
+        <option value="expo">Exponential</option>
+        <option value="sine">Sine</option>
+      </select>
+    </div>
+    <div class="speed-field">
+      <label>Placement Font</label>
+      <select id="inputFontPlacement">
+        <option value="system-ui, 'Segoe UI', Roboto, sans-serif">System (default)</option>
+        <option value="Arial, Helvetica, sans-serif">Arial</option>
+        <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+        <option value="Verdana, Geneva, sans-serif">Verdana</option>
+        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+        <option value="'Times New Roman', Times, serif">Times New Roman</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="'Courier New', Courier, monospace">Courier New</option>
+        <option value="Impact, sans-serif">Impact</option>
+        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+      </select>
+    </div>
+    <div class="speed-field">
+      <label>Names &amp; Points Font</label>
+      <select id="inputFontNames">
+        <option value="system-ui, 'Segoe UI', Roboto, sans-serif">System (default)</option>
+        <option value="Arial, Helvetica, sans-serif">Arial</option>
+        <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+        <option value="Verdana, Geneva, sans-serif">Verdana</option>
+        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+        <option value="'Times New Roman', Times, serif">Times New Roman</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="'Courier New', Courier, monospace">Courier New</option>
+        <option value="Impact, sans-serif">Impact</option>
+        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+      </select>
+    </div>
+    <div class="speed-field">
+      <label>Eliminated Font</label>
+      <select id="inputFontElim">
+        <option value="system-ui, 'Segoe UI', Roboto, sans-serif">System (default)</option>
+        <option value="Arial, Helvetica, sans-serif">Arial</option>
+        <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+        <option value="Verdana, Geneva, sans-serif">Verdana</option>
+        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+        <option value="'Times New Roman', Times, serif">Times New Roman</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="'Courier New', Courier, monospace">Courier New</option>
+        <option value="Impact, sans-serif">Impact</option>
+        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="size-row">
+    <div class="size-field">
+      <label>Placement Size</label>
+      <input type="range" id="inputSizePlacement" min="0.5" max="2.5" step="0.05" value="1">
+      <span class="size-value" id="sizePlacementVal">1.00×</span>
+    </div>
+    <div class="size-field">
+      <label>Names &amp; Points Size</label>
+      <input type="range" id="inputSizeNames" min="0.5" max="2.5" step="0.05" value="1">
+      <span class="size-value" id="sizeNamesVal">1.00×</span>
+    </div>
+    <div class="size-field">
+      <label>Eliminated Size</label>
+      <input type="range" id="inputSizeElim" min="0.5" max="2.5" step="0.05" value="1">
+      <span class="size-value" id="sizeElimVal">1.00×</span>
+    </div>
+  </div>
+
+  <div class="style-row">
+    <div class="style-field">
+      <label>Placement Style</label>
+      <select id="inputStylePlacement">
+        <option value="bold">Bold</option>
+        <option value="normal">Normal</option>
+        <option value="italic">Italic</option>
+        <option value="bold-italic">Bold Italic</option>
+      </select>
+    </div>
+    <div class="style-field">
+      <label>Names &amp; Points Style</label>
+      <select id="inputStyleNames">
+        <option value="bold">Bold</option>
+        <option value="normal">Normal</option>
+        <option value="italic">Italic</option>
+        <option value="bold-italic">Bold Italic</option>
+      </select>
+    </div>
+    <div class="style-field">
+      <label>Eliminated Style</label>
+      <select id="inputStyleElim">
+        <option value="bold">Bold</option>
+        <option value="normal">Normal</option>
+        <option value="italic">Italic</option>
+        <option value="bold-italic">Bold Italic</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button class="btn btn-play" id="btnPlay" disabled>▶️ Play Race</button>
+    <button class="btn btn-download" id="btnDownload" disabled>📥 Download Video</button>
+    <button class="btn btn-reset" id="btnReset">🗑️ Reset All</button>
+  </div>
+
+  <div class="preview-toggle">
+    <span class="preview-label">Preview Mode:</span>
+    <button class="preview-btn active" data-mode="after" id="previewAfter">After Points Added</button>
+    <button class="preview-btn" data-mode="before" id="previewBefore">Before Points Added</button>
+  </div>
+
+  <div class="bars-area">
+    <div class="bars-header">
+      <span>Points</span>
+      <span>Athlete</span>
+    </div>
+    <div id="barsContainer">
+      <div class="empty-state">No athletes yet. Add one above to get started.</div>
+    </div>
+  </div>
+</div>
+
+<div class="race-overlay" id="raceOverlay">
+  <div class="race-bars" id="raceBars">
+    <div class="race-rank-column" id="raceRankColumn"></div>
+    <div class="race-bar-column" id="raceBarColumn"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="advancedModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📋 Advanced Paste from Excel</h2>
+      <button class="modal-close" id="modalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-hint">
+        Copy columns from Excel and paste each one into the matching textarea below.
+        Lines match by position: line 1 of every column = one athlete.<br>
+        <strong style="color:#c9d1d9;">Colors:</strong> use hex with or without <code>#</code> (e.g. <code>F1C40F</code> or <code>#F1C40F</code>).<br>
+        <strong style="color:#c9d1d9;">Eliminated:</strong>
+        type <code>Already Eliminated</code> (or anything containing the word <code>Already</code>) to show the ELIMINATED tag <em>from the very start</em>.
+        Type <code>Eliminated</code> (without <code>Already</code>) to show the tag <em>after the bars finish swapping</em>.
+        Anything else = not eliminated.<br>
+        <strong style="color:#c9d1d9;">Tip:</strong> use the <strong style="color:#ea580c;">Export from Leaderboard</strong> button below to fill these fields automatically from the current list.
+      </div>
+      <div class="paste-grid">
+        <div class="paste-field">
+          <label>Athlete Names</label>
+          <textarea id="pasteNames" placeholder="Navy&#10;Brown&#10;Indigo"></textarea>
+        </div>
+        <div class="paste-field">
+          <label>Athlete Color</label>
+          <textarea id="pasteColors" placeholder="000080&#10;964B00&#10;4B0082"></textarea>
+        </div>
+        <div class="paste-field">
+          <label>Athlete Points</label>
+          <textarea id="pastePoints" placeholder="0&#10;10&#10;20"></textarea>
+        </div>
+        <div class="paste-field">
+          <label>Athlete Rewarded Points</label>
+          <textarea id="pasteReward" placeholder="5&#10;90&#10;30"></textarea>
+        </div>
+        <div class="paste-field">
+          <label>Eliminated</label>
+          <textarea id="pasteElim" placeholder="Already Eliminated&#10;Eliminated&#10;No"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-export" id="modalExport">📤 Export from Leaderboard</button>
+      <button class="btn btn-reset" id="modalCancel">Cancel</button>
+      <button class="btn btn-update" id="modalAppend">➕ Append</button>
+      <button class="btn btn-add" id="modalReplace">🔄 Replace All</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    let athletes = [];
+    let nextId = 0;
+    let previewMode = 'after';
+    let isRecording = false;
+
+    const makerScreen = document.getElementById('makerScreen');
+    const inputName = document.getElementById('inputName');
+    const inputColor = document.getElementById('inputColor');
+    const inputPoints = document.getElementById('inputPoints');
+    const inputReward = document.getElementById('inputReward');
+    const inputEliminated = document.getElementById('inputEliminated');
+    const inputAlreadyEliminated = document.getElementById('inputAlreadyEliminated');
+    const btnAdd = document.getElementById('btnAdd');
+    const btnUpdate = document.getElementById('btnUpdate');
+    const btnAdvanced = document.getElementById('btnAdvanced');
+    const btnSave = document.getElementById('btnSave');
+    const btnLoad = document.getElementById('btnLoad');
+    const fileLoad = document.getElementById('fileLoad');
+    const inputSwapDuration = document.getElementById('inputSwapDuration');
+    const inputGrowDuration = document.getElementById('inputGrowDuration');
+    const inputEaseGrow = document.getElementById('inputEaseGrow');
+    const inputEaseSwap = document.getElementById('inputEaseSwap');
+    const inputFontPlacement = document.getElementById('inputFontPlacement');
+    const inputFontNames = document.getElementById('inputFontNames');
+    const inputFontElim = document.getElementById('inputFontElim');
+    const inputSizePlacement = document.getElementById('inputSizePlacement');
+    const inputSizeNames = document.getElementById('inputSizeNames');
+    const inputSizeElim = document.getElementById('inputSizeElim');
+    const sizePlacementVal = document.getElementById('sizePlacementVal');
+    const sizeNamesVal = document.getElementById('sizeNamesVal');
+    const sizeElimVal = document.getElementById('sizeElimVal');
+    const inputStylePlacement = document.getElementById('inputStylePlacement');
+    const inputStyleNames = document.getElementById('inputStyleNames');
+    const inputStyleElim = document.getElementById('inputStyleElim');
+    const btnPlay = document.getElementById('btnPlay');
+    const btnDownload = document.getElementById('btnDownload');
+    const btnReset = document.getElementById('btnReset');
+    const barsContainer = document.getElementById('barsContainer');
+    const previewAfter = document.getElementById('previewAfter');
+    const previewBefore = document.getElementById('previewBefore');
+
+    const raceOverlay = document.getElementById('raceOverlay');
+    const raceBars = document.getElementById('raceBars');
+    const raceRankColumn = document.getElementById('raceRankColumn');
+    const raceBarColumn = document.getElementById('raceBarColumn');
+
+    const advancedModal = document.getElementById('advancedModal');
+    const modalClose = document.getElementById('modalClose');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalAppend = document.getElementById('modalAppend');
+    const modalReplace = document.getElementById('modalReplace');
+    const modalExport = document.getElementById('modalExport');
+    const pasteNames = document.getElementById('pasteNames');
+    const pasteColors = document.getElementById('pasteColors');
+    const pastePoints = document.getElementById('pastePoints');
+    const pasteReward = document.getElementById('pasteReward');
+    const pasteElim = document.getElementById('pasteElim');
+
+    function getSwapDuration() {
+      const v = parseFloat(inputSwapDuration.value);
+      return isNaN(v) || v < 0.1 ? 0.8 : v;
+    }
+    function getGrowDuration() {
+      const v = parseFloat(inputGrowDuration.value);
+      return isNaN(v) || v < 0.1 ? 0.8 : v;
+    }
+
+    // ─── EASING MAPS ───────────────────────────────────────────────
+    // CSS versions used in transition-timing-function.
+    // (For Elastic/Bounce we approximate with cubic-bezier that overshoots.)
+    const CSS_EASINGS = {
+      linear:    'linear',
+      ease:      'ease',
+      easein:    'ease-in',
+      easeout:   'ease-out',
+      easeinout: 'ease-in-out',
+      elastic:   'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+      back:      'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+      expo:      'cubic-bezier(0.87, 0, 0.13, 1)',
+      sine:      'cubic-bezier(0.445, 0.05, 0.55, 0.95)'
+    };
+
+    // JS easing functions used for the counting number tween.
+    function easeValue(type, t) {
+      if (t <= 0) return 0;
+      if (t >= 1) return 1;
+      switch (type) {
+        case 'linear':    return t;
+        case 'ease':      return t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+        case 'easein':    return t*t;
+        case 'easeout':   return t*(2-t);
+        case 'easeinout': return t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+        case 'elastic': {
+          const p = 0.3;
+          return Math.pow(2, -10*t) * Math.sin((t - p/4) * (2*Math.PI) / p) + 1;
+        }
+        case 'back': {
+          const c1 = 1.70158, c3 = c1 + 1;
+          return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+        }
+        case 'expo':
+          return t < 0.5
+            ? Math.pow(2, 20*t - 10)/2
+            : (2 - Math.pow(2, -20*t + 10))/2;
+        case 'sine':
+          return -(Math.cos(Math.PI * t) - 1) / 2;
+        default: return t;
+      }
+    }
+
+    function getGrowEasingCSS() {
+      return CSS_EASINGS[inputEaseGrow.value] || 'linear';
+    }
+    function getSwapEasingCSS() {
+      return CSS_EASINGS[inputEaseSwap.value] || 'linear';
+    }
+    function getGrowEasingType() { return inputEaseGrow.value || 'linear'; }
+
+    function applyFonts() {
+      document.documentElement.style.setProperty('--font-placement', inputFontPlacement.value);
+      document.documentElement.style.setProperty('--font-names', inputFontNames.value);
+      document.documentElement.style.setProperty('--font-elim', inputFontElim.value);
+    }
+
+    function applySizes() {
+      const p = parseFloat(inputSizePlacement.value) || 1;
+      const n = parseFloat(inputSizeNames.value) || 1;
+      const e = parseFloat(inputSizeElim.value) || 1;
+      document.documentElement.style.setProperty('--size-placement', p);
+      document.documentElement.style.setProperty('--size-names', n);
+      document.documentElement.style.setProperty('--size-elim', e);
+      sizePlacementVal.textContent = p.toFixed(2) + '×';
+      sizeNamesVal.textContent = n.toFixed(2) + '×';
+      sizeElimVal.textContent = e.toFixed(2) + '×';
+    }
+
+    function styleToCss(value) {
+      switch (value) {
+        case 'normal':      return { weight: '400', style: 'normal' };
+        case 'italic':      return { weight: '400', style: 'italic' };
+        case 'bold-italic': return { weight: '700', style: 'italic' };
+        case 'bold':
+        default:            return { weight: '700', style: 'normal' };
+      }
+    }
+
+    function applyStyles() {
+      const p = styleToCss(inputStylePlacement.value);
+      const n = styleToCss(inputStyleNames.value);
+      const e = styleToCss(inputStyleElim.value);
+      document.documentElement.style.setProperty('--weight-placement', p.weight);
+      document.documentElement.style.setProperty('--style-placement', p.style);
+      document.documentElement.style.setProperty('--weight-names', n.weight);
+      document.documentElement.style.setProperty('--style-names', n.style);
+      document.documentElement.style.setProperty('--weight-elim', e.weight);
+      document.documentElement.style.setProperty('--style-elim', e.style);
+    }
+
+    function getLowestActive(data = athletes) {
+      const active = data.filter(a => !a.eliminated);
+      if (active.length === 0) return null;
+      return active.reduce((min, a) => a.totalPoints < min.totalPoints ? a : min, active[0]);
+    }
+
+    const ELIMINATION_THRESHOLD = 5;
+
+    function checkAndEliminate() {
+      const active = athletes.filter(a => !a.eliminated);
+      if (active.length < 2) return;
+      const lowest = getLowestActive(athletes);
+      if (lowest && lowest.totalPoints < ELIMINATION_THRESHOLD) {
+        lowest.eliminated = true;
+        if (lowest.showElimAtStart === undefined) lowest.showElimAtStart = true;
+        checkAndEliminate();
+      }
+    }
+
+    function ordinal(n) {
+      const s = ['th', 'st', 'nd', 'rd'];
+      const v = n % 100;
+      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
+    function tweenNumber(el, from, to, durationMs, easingType) {
+      if (durationMs <= 0) { el.textContent = to; return; }
+      const start = performance.now();
+      function step(now) {
+        const rawT = Math.min((now - start) / durationMs, 1);
+        const easedT = easeValue(easingType, rawT);
+        const value = Math.round(from + (to - from) * easedT);
+        el.textContent = value;
+        if (rawT < 1) requestAnimationFrame(step);
+        else el.textContent = to;
+      }
+      requestAnimationFrame(step);
+    }
+
+    const MAX_BAR_PCT = 62;
+    function pctFor(points, max) {
+      if (max <= 0) return 0;
+      return Math.min((points / max) * MAX_BAR_PCT, MAX_BAR_PCT);
+    }
+
+    function previewPointsFor(a) {
+      return previewMode === 'after' ? a.totalPoints : a.basePoints;
+    }
+
+    function renderMaker() {
+      const data = athletes;
+      const ordered = data.slice().sort((a, b) => previewPointsFor(b) - previewPointsFor(a));
+      const maxPoints = ordered.length > 0
+        ? Math.max(...ordered.map(a => previewPointsFor(a)), 1)
+        : 1;
+
+      if (ordered.length === 0) {
+        barsContainer.innerHTML = '<div class="empty-state">No athletes yet. Add one above to get started.</div>';
+      } else {
+        barsContainer.innerHTML = '';
+        ordered.forEach(athlete => {
+          const row = document.createElement('div');
+          row.className = 'bar-row';
+
+          const track = document.createElement('div');
+          track.className = 'bar-track';
+
+          const bg = document.createElement('div');
+          bg.className = 'bar-bg';
+
+          const fill = document.createElement('div');
+          fill.className = 'bar-fill';
+          fill.style.background = athlete.color || '#f1c40f';
+          const pct = (previewPointsFor(athlete) / maxPoints) * 100;
+          fill.style.width = Math.min(pct, 100) + '%';
+
+          const content = document.createElement('div');
+          content.className = 'bar-fill-content';
+          const ptsVal = document.createElement('span');
+          ptsVal.textContent = previewPointsFor(athlete);
+          content.appendChild(ptsVal);
+          fill.appendChild(content);
+
+          bg.appendChild(fill);
+          track.appendChild(bg);
+
+          const name = document.createElement('div');
+          name.className = 'athlete-name';
+          name.textContent = athlete.name;
+          name.style.color = athlete.color || '#f1c40f';
+
+          row.appendChild(track);
+          row.appendChild(name);
+
+          if (athlete.eliminated) {
+            const tag = document.createElement('span');
+            tag.className = 'elim-tag';
+            tag.textContent = 'ELIMINATED';
+            row.appendChild(tag);
+          }
+
+          barsContainer.appendChild(row);
+        });
+      }
+    }
+
+    function clearInputs() {
+      inputName.value = '';
+      inputColor.value = '#f1c40f';
+      inputPoints.value = '0';
+      inputReward.value = '0';
+      inputEliminated.checked = false;
+      inputAlreadyEliminated.checked = false;
+      inputName.focus();
+    }
+
+    function updatePlayButtons() {
+      const disabled = athletes.length === 0;
+      btnPlay.disabled = disabled;
+      btnDownload.disabled = disabled || isRecording;
+    }
+
+    function addAthlete() {
+      const name = inputName.value.trim();
+      if (!name) { alert('Please enter an athlete name.'); return; }
+      if (athletes.some(a => a.name.toLowerCase() === name.toLowerCase())) {
+        alert('That name already exists. Use Update instead.');
+        return;
+      }
+
+      const points = parseInt(inputPoints.value, 10) || 0;
+      const reward = parseInt(inputReward.value, 10) || 0;
+      const eliminated = inputEliminated.checked;
+      const alreadyElim = inputAlreadyEliminated.checked;
+      const finalEliminated = eliminated || alreadyElim;
+
+      athletes.push({
+        id: nextId++,
+        name: name,
+        color: inputColor.value || '#f1c40f',
+        basePoints: points,
+        rewardPoints: reward,
+        totalPoints: points + reward,
+        eliminated: finalEliminated,
+        showElimAtStart: alreadyElim
+      });
+
+      checkAndEliminate();
+      clearInputs();
+      renderMaker();
+      updatePlayButtons();
+    }
+
+    function updateAthlete() {
+      const name = inputName.value.trim();
+      if (!name) { alert('Please enter an athlete name to update.'); return; }
+      const existing = athletes.find(a => a.name.toLowerCase() === name.toLowerCase());
+      if (!existing) { alert('No athlete found with that name. Use Add instead.'); return; }
+
+      const points = parseInt(inputPoints.value, 10) || 0;
+      const reward = parseInt(inputReward.value, 10) || 0;
+      const eliminated = inputEliminated.checked;
+      const alreadyElim = inputAlreadyEliminated.checked;
+
+      existing.color = inputColor.value || '#f1c40f';
+      existing.basePoints = points;
+      existing.rewardPoints = reward;
+      existing.totalPoints = points + reward;
+
+      if (alreadyElim) {
+        existing.eliminated = true;
+        existing.showElimAtStart = true;
+      } else if (eliminated) {
+        existing.eliminated = true;
+        existing.showElimAtStart = false;
+      } else {
+        existing.eliminated = false;
+        existing.showElimAtStart = false;
+      }
+
+      checkAndEliminate();
+      clearInputs();
+      renderMaker();
+      updatePlayButtons();
+    }
+
+    function resetAll() {
+      if (athletes.length > 0 && !confirm('Remove all athletes?')) return;
+      athletes = [];
+      nextId = 0;
+      clearInputs();
+      renderMaker();
+      updatePlayButtons();
+    }
+
+    function setPreviewMode(mode) {
+      previewMode = mode;
+      if (mode === 'after') {
+        previewAfter.classList.add('active');
+        previewBefore.classList.remove('active');
+      } else {
+        previewBefore.classList.add('active');
+        previewAfter.classList.remove('active');
+      }
+      renderMaker();
+    }
+
+    previewAfter.addEventListener('click', () => setPreviewMode('after'));
+    previewBefore.addEventListener('click', () => setPreviewMode('before'));
+
+    function openAdvanced() {
+      advancedModal.classList.add('active');
+      pasteNames.focus();
+    }
+    function closeAdvanced() {
+      advancedModal.classList.remove('active');
+    }
+
+    btnAdvanced.addEventListener('click', openAdvanced);
+    modalClose.addEventListener('click', closeAdvanced);
+    modalCancel.addEventListener('click', closeAdvanced);
+    advancedModal.addEventListener('click', (e) => {
+      if (e.target === advancedModal) closeAdvanced();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && advancedModal.classList.contains('active')) {
+        closeAdvanced();
+      }
+    });
+
+    function parseAdvanced() {
+      const names = pasteNames.value.split('\n').map(s => s.trim());
+      const colors = pasteColors.value.split('\n').map(s => s.trim());
+      const points = pastePoints.value.split('\n').map(s => s.trim());
+      const rewards = pasteReward.value.split('\n').map(s => s.trim());
+      const elims = pasteElim.value.split('\n').map(s => s.trim());
+
+      const maxLen = Math.max(
+        names.length, colors.length, points.length, rewards.length, elims.length
+      );
+
+      const parsed = [];
+      for (let i = 0; i < maxLen; i++) {
+        const name = (names[i] || '').trim();
+        if (!name) continue;
+
+        let color = (colors[i] || '').trim();
+        if (!color) {
+          color = '#f1c40f';
+        } else {
+          if (!color.startsWith('#')) color = '#' + color;
+          if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+          } else if (/^#[0-9A-Fa-f]{3}$/.test(color)) {
+            color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+          } else {
+            color = '#f1c40f';
+          }
+        }
+
+        const basePoints = parseInt(points[i], 10) || 0;
+        const rewardPoints = parseInt(rewards[i], 10) || 0;
+
+        const elimStr = (elims[i] || '').trim().toLowerCase();
+        const hasAlready = elimStr.includes('already');
+        const hasElim = elimStr.includes('eliminated');
+
+        const isElim = hasAlready || hasElim;
+        const showAtStart = hasAlready;
+
+        parsed.push({
+          name,
+          color,
+          basePoints,
+          rewardPoints,
+          eliminated: isElim,
+          showElimAtStart: showAtStart
+        });
+      }
+      return parsed;
+    }
+
+    function buildAthleteFromParsed(p) {
+      return {
+        id: nextId++,
+        name: p.name,
+        color: p.color,
+        basePoints: p.basePoints,
+        rewardPoints: p.rewardPoints,
+        totalPoints: p.basePoints + p.rewardPoints,
+        eliminated: p.eliminated,
+        showElimAtStart: p.showElimAtStart
+      };
+    }
+
+    // ─── EXPORT: pull current athletes into the textareas ──────────
+    modalExport.addEventListener('click', () => {
+      if (athletes.length === 0) {
+        alert('No athletes in the leaderboard yet. Add some first.');
+        return;
+      }
+      pasteNames.value = athletes.map(a => a.name).join('\n');
+      pasteColors.value = athletes
+        .map(a => (a.color || '#f1c40f').replace('#', '').toUpperCase())
+        .join('\n');
+      pastePoints.value = athletes.map(a => a.basePoints).join('\n');
+      pasteReward.value = athletes.map(a => a.rewardPoints).join('\n');
+      pasteElim.value = athletes
+        .map(a => {
+          if (!a.eliminated) return '';
+          return a.showElimAtStart ? 'Already Eliminated' : 'Eliminated';
+        })
+        .join('\n');
+    });
+
+    modalAppend.addEventListener('click', () => {
+      const parsed = parseAdvanced();
+      if (parsed.length === 0) {
+        alert('No athletes found in the pasted data. Make sure the "Athlete Names" column has at least one line.');
+        return;
+      }
+      const existingNames = new Set(athletes.map(a => a.name.toLowerCase()));
+      let added = 0;
+      parsed.forEach(p => {
+        if (existingNames.has(p.name.toLowerCase())) return;
+        athletes.push(buildAthleteFromParsed(p));
+        existingNames.add(p.name.toLowerCase());
+        added++;
+      });
+      checkAndEliminate();
+      renderMaker();
+      updatePlayButtons();
+      closeAdvanced();
+      alert(`Added ${added} athlete${added === 1 ? '' : 's'}.`);
+    });
+
+    modalReplace.addEventListener('click', () => {
+      const parsed = parseAdvanced();
+      if (parsed.length === 0) {
+        alert('No athletes found in the pasted data. Make sure the "Athlete Names" column has at least one line.');
+        return;
+      }
+      if (!confirm('This will replace ALL existing athletes. Continue?')) return;
+      athletes = parsed.map(buildAthleteFromParsed);
+      checkAndEliminate();
+      renderMaker();
+      updatePlayButtons();
+      closeAdvanced();
+    });
+
+    function saveData() {
+      if (athletes.length === 0) {
+        alert('No athletes to save. Add some first.');
+        return;
+      }
+      const data = {
+        version: 1,
+        savedAt: new Date().toISOString(),
+        previewMode: previewMode,
+        settings: {
+          swapDuration: inputSwapDuration.value,
+          growDuration: inputGrowDuration.value,
+          easeGrow: inputEaseGrow.value,
+          easeSwap: inputEaseSwap.value,
+          fontPlacement: inputFontPlacement.value,
+          fontNames: inputFontNames.value,
+          fontElim: inputFontElim.value,
+          sizePlacement: inputSizePlacement.value,
+          sizeNames: inputSizeNames.value,
+          sizeElim: inputSizeElim.value,
+          stylePlacement: inputStylePlacement.value,
+          styleNames: inputStyleNames.value,
+          styleElim: inputStyleElim.value
+        },
+        athletes: athletes.map(a => ({
+          name: a.name,
+          color: a.color,
+          basePoints: a.basePoints,
+          rewardPoints: a.rewardPoints,
+          eliminated: a.eliminated,
+          showElimAtStart: a.showElimAtStart
+        }))
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      link.href = url;
+      link.download = `leaderboard-${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    btnSave.addEventListener('click', saveData);
+
+    btnLoad.addEventListener('click', () => {
+      fileLoad.value = '';
+      fileLoad.click();
+    });
+
+    fileLoad.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (!data || !Array.isArray(data.athletes)) {
+            throw new Error('File does not contain an "athletes" array.');
+          }
+          if (!confirm(`Load ${data.athletes.length} athlete(s)? This will replace the current list.`)) return;
+
+          if (data.settings) {
+            if (data.settings.swapDuration !== undefined) inputSwapDuration.value = data.settings.swapDuration;
+            if (data.settings.growDuration !== undefined) inputGrowDuration.value = data.settings.growDuration;
+            if (data.settings.easeGrow) inputEaseGrow.value = data.settings.easeGrow;
+            if (data.settings.easeSwap) inputEaseSwap.value = data.settings.easeSwap;
+            if (data.settings.fontPlacement) inputFontPlacement.value = data.settings.fontPlacement;
+            if (data.settings.fontNames) inputFontNames.value = data.settings.fontNames;
+            if (data.settings.fontElim) inputFontElim.value = data.settings.fontElim;
+            if (data.settings.sizePlacement !== undefined) inputSizePlacement.value = data.settings.sizePlacement;
+            if (data.settings.sizeNames !== undefined) inputSizeNames.value = data.settings.sizeNames;
+            if (data.settings.sizeElim !== undefined) inputSizeElim.value = data.settings.sizeElim;
+            if (data.settings.stylePlacement) inputStylePlacement.value = data.settings.stylePlacement;
+            if (data.settings.styleNames) inputStyleNames.value = data.settings.styleNames;
+            if (data.settings.styleElim) inputStyleElim.value = data.settings.styleElim;
+            applyFonts();
+            applySizes();
+            applyStyles();
+          }
+
+          athletes = data.athletes.map(a => ({
+            id: nextId++,
+            name: String(a.name || 'Unknown'),
+            color: a.color || '#f1c40f',
+            basePoints: parseInt(a.basePoints, 10) || 0,
+            rewardPoints: parseInt(a.rewardPoints, 10) || 0,
+            totalPoints: (parseInt(a.basePoints, 10) || 0) + (parseInt(a.rewardPoints, 10) || 0),
+            eliminated: !!a.eliminated,
+            showElimAtStart: !!a.showElimAtStart
+          }));
+
+          if (data.previewMode === 'before' || data.previewMode === 'after') {
+            setPreviewMode(data.previewMode);
+          } else {
+            renderMaker();
+          }
+
+          updatePlayButtons();
+        } catch (err) {
+          alert('Failed to load file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // PLAY RACE — accepts optional onComplete callback
+    // ═══════════════════════════════════════════════════════════════
+    function playRace(onComplete) {
+      if (athletes.length === 0) return;
+
+      applyFonts();
+      applySizes();
+      applyStyles();
+
+      const growEaseCSS = getGrowEasingCSS();
+      const swapEaseCSS = getSwapEasingCSS();
+      const growEaseType = getGrowEasingType();
+
+      const before = athletes.map(a => ({ ...a, totalPoints: a.basePoints }));
+      const after = athletes.map(a => ({ ...a, totalPoints: a.basePoints + a.rewardPoints }));
+
+      const allValues = [
+        ...before.map(a => a.totalPoints),
+        ...after.map(a => a.totalPoints)
+      ];
+      const globalMax = allValues.length > 0 ? Math.max(...allValues, 1) : 1;
+
+      makerScreen.style.display = 'none';
+      raceOverlay.classList.add('active');
+
+      raceRankColumn.innerHTML = '';
+      raceBarColumn.innerHTML = '';
+
+      const beforeSorted = before.slice().sort((a, b) => b.totalPoints - a.totalPoints);
+
+      raceBars.style.setProperty('--n', beforeSorted.length);
+
+      beforeSorted.forEach((_, idx) => {
+        const rankBox = document.createElement('div');
+        rankBox.className = 'race-rank-box';
+        rankBox.textContent = ordinal(idx + 1);
+        raceRankColumn.appendChild(rankBox);
+      });
+
+      const rowMap = new Map();
+
+      beforeSorted.forEach(athlete => {
+        const row = document.createElement('div');
+        row.className = 'race-bar-row';
+        row.dataset.id = athlete.id;
+
+        const track = document.createElement('div');
+        track.className = 'race-bar-track';
+
+        const bg = document.createElement('div');
+        bg.className = 'race-bar-bg';
+
+        const fill = document.createElement('div');
+        fill.className = 'race-bar-fill';
+        fill.style.background = athlete.color || '#f1c40f';
+        const pctBefore = pctFor(athlete.totalPoints, globalMax);
+        fill.style.width = pctBefore + '%';
+
+        const content = document.createElement('div');
+        content.className = 'race-bar-fill-content';
+        const ptsVal = document.createElement('span');
+        ptsVal.textContent = athlete.totalPoints;
+        content.appendChild(ptsVal);
+
+        fill.appendChild(content);
+        bg.appendChild(fill);
+        track.appendChild(bg);
+
+        const infoGroup = document.createElement('div');
+        infoGroup.className = 'race-info-group';
+        infoGroup.style.left = `calc(${pctBefore}% + 14px)`;
+
+        const name = document.createElement('div');
+        name.className = 'race-athlete-name';
+        name.textContent = athlete.name;
+        name.style.color = athlete.color || '#f1c40f';
+        infoGroup.appendChild(name);
+
+        if (athlete.eliminated && athlete.showElimAtStart) {
+          const tag = document.createElement('div');
+          tag.className = 'race-elim-tag';
+          tag.textContent = 'ELIMINATED';
+          infoGroup.appendChild(tag);
+        }
+
+        track.appendChild(infoGroup);
+        row.appendChild(track);
+        raceBarColumn.appendChild(row);
+
+        rowMap.set(athlete.id, {
+          row, fill, content, ptsVal, infoGroup, name, athlete
+        });
+      });
+
+      const swapDur = getSwapDuration();
+      const growDur = getGrowDuration();
+      const initialPause = 1500;
+      const waitAfterGrow = 1000;
+      const waitAfterSwap = 1000;
+
+      setTimeout(() => {
+        rowMap.forEach(entry => {
+          entry.row.style.transition = `transform ${swapDur}s ${swapEaseCSS}, opacity ${swapDur}s ${swapEaseCSS}`;
+          entry.fill.style.transition = `width ${growDur}s ${growEaseCSS}`;
+          entry.infoGroup.style.transition = `left ${growDur}s ${growEaseCSS}`;
+        });
+
+        void raceBarColumn.offsetHeight;
+
+        beforeSorted.forEach(athlete => {
+          const entry = rowMap.get(athlete.id);
+          if (!entry) return;
+
+          const finalPoints = athlete.basePoints + athlete.rewardPoints;
+          const pctAfter = pctFor(finalPoints, globalMax);
+          entry.fill.style.width = pctAfter + '%';
+          entry.infoGroup.style.left = `calc(${pctAfter}% + 14px)`;
+
+          tweenNumber(entry.ptsVal, athlete.basePoints, finalPoints, growDur * 1000, growEaseType);
+        });
+
+        setTimeout(() => {
+          const afterSorted = after.slice().sort((a, b) => b.totalPoints - a.totalPoints);
+
+          const beforeTops = new Map();
+          rowMap.forEach((entry, id) => {
+            beforeTops.set(id, entry.row.getBoundingClientRect().top);
+          });
+
+          afterSorted.forEach(athlete => {
+            const entry = rowMap.get(athlete.id);
+            if (entry) raceBarColumn.appendChild(entry.row);
+          });
+
+          const afterTops = new Map();
+          rowMap.forEach((entry, id) => {
+            afterTops.set(id, entry.row.getBoundingClientRect().top);
+          });
+
+          rowMap.forEach((entry, id) => {
+            const oldTop = beforeTops.get(id);
+            const newTop = afterTops.get(id);
+            if (oldTop === undefined || newTop === undefined) return;
+            const deltaY = oldTop - newTop;
+            if (Math.abs(deltaY) < 0.5) return;
+            entry.row.style.transition = 'none';
+            entry.row.style.transform = `translateY(${deltaY}px)`;
+          });
+
+          void raceBarColumn.offsetHeight;
+
+          rowMap.forEach(entry => {
+            entry.row.style.transition = `transform ${swapDur}s ${swapEaseCSS}, opacity ${swapDur}s ${swapEaseCSS}`;
+            entry.row.style.transform = 'translateY(0)';
+          });
+
+          setTimeout(() => {
+            afterSorted.forEach(athlete => {
+              const entry = rowMap.get(athlete.id);
+              if (!entry) return;
+
+              if (athlete.eliminated && !athlete.showElimAtStart) {
+                const existing = entry.infoGroup.querySelector('.race-elim-tag');
+                if (!existing) {
+                  const tag = document.createElement('div');
+                  tag.className = 'race-elim-tag';
+                  tag.textContent = 'ELIMINATED';
+                  entry.infoGroup.appendChild(tag);
+                }
+              }
+            });
+
+            if (typeof onComplete === 'function') {
+              onComplete();
+            }
+
+            setTimeout(() => {
+              setTimeout(() => {
+                raceOverlay.classList.remove('active');
+                makerScreen.style.display = 'block';
+                renderMaker();
+                updatePlayButtons();
+              }, 1000);
+            }, 3000);
+
+          }, swapDur * 1000 + waitAfterSwap);
+
+        }, growDur * 1000 + waitAfterGrow);
+
+      }, initialPause);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // DOWNLOAD VIDEO — uses screen capture + MediaRecorder
+    // Priority: MP4 (H.264) → WebM
+    // ═══════════════════════════════════════════════════════════════
+    async function downloadVideo() {
+      if (athletes.length === 0) return;
+      if (isRecording) return;
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        alert('Your browser does not support screen capture.\n\nPlease use Chrome, Edge, or Firefox on a secure context (https:// or localhost).');
+        return;
+      }
+
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getDisplayMedia({
+          video: { frameRate: 60 },
+          audio: false,
+          preferCurrentTab: true,
+          selfBrowserSurface: 'include',
+          surfaceSwitching: 'exclude'
+        });
+      } catch (err) {
+        console.log('Screen capture cancelled:', err.message);
+        return;
+      }
+
+      const candidates = [
+        'video/mp4;codecs=avc1.42E01E',
+        'video/mp4;codecs=avc1.4D401E',
+        'video/mp4;codecs=avc1',
+        'video/mp4',
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm'
+      ];
+
+      let mimeType = '';
+      for (const c of candidates) {
+        try {
+          if (MediaRecorder.isTypeSupported(c)) {
+            mimeType = c;
+            break;
+          }
+        } catch (e) { /* ignore */ }
+      }
+
+      if (!mimeType) {
+        alert('Your browser does not support any compatible video codec for MediaRecorder.');
+        stream.getTracks().forEach(t => t.stop());
+        return;
+      }
+
+      const baseMime = mimeType.split(';')[0];
+      const ext = baseMime.includes('mp4') ? 'mp4' : 'webm';
+
+      let recorder;
+      try {
+        recorder = new MediaRecorder(stream, {
+          mimeType,
+          videoBitsPerSecond: 8_000_000
+        });
+      } catch (err) {
+        alert('Failed to create recorder: ' + err.message);
+        stream.getTracks().forEach(t => t.stop());
+        return;
+      }
+
+      const chunks = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      const handleStop = () => {
+        const blob = new Blob(chunks, { type: baseMime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `algicosathlon-race-${Date.now()}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+        stream.getTracks().forEach(t => t.stop());
+
+        isRecording = false;
+        btnDownload.textContent = '📥 Download Video';
+        updatePlayButtons();
+      };
+
+      recorder.onstop = handleStop;
+
+      stream.getVideoTracks()[0].addEventListener('ended', () => {
+        if (recorder.state !== 'inactive') recorder.stop();
+      });
+
+      isRecording = true;
+      btnDownload.textContent = '⏺ Recording…';
+      btnDownload.disabled = true;
+      btnPlay.disabled = true;
+
+      setTimeout(() => {
+        try {
+          recorder.start(1000);
+        } catch (err) {
+          alert('Failed to start recording: ' + err.message);
+          stream.getTracks().forEach(t => t.stop());
+          isRecording = false;
+          btnDownload.textContent = '📥 Download Video';
+          updatePlayButtons();
+          return;
+        }
+
+        playRace(() => {
+          setTimeout(() => {
+            if (recorder.state !== 'inactive') {
+              try { recorder.stop(); } catch (e) { /* ignore */ }
+            }
+          }, 3500);
+        });
+      }, 300);
+    }
+
+    btnAdd.addEventListener('click', addAthlete);
+    btnUpdate.addEventListener('click', updateAthlete);
+    btnReset.addEventListener('click', resetAll);
+    btnPlay.addEventListener('click', () => playRace());
+    btnDownload.addEventListener('click', downloadVideo);
+
+    inputName.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); addAthlete(); }
+    });
+
+    inputFontPlacement.addEventListener('change', applyFonts);
+    inputFontNames.addEventListener('change', applyFonts);
+    inputFontElim.addEventListener('change', applyFonts);
+
+    inputSizePlacement.addEventListener('input', applySizes);
+    inputSizeNames.addEventListener('input', applySizes);
+    inputSizeElim.addEventListener('input', applySizes);
+
+    inputStylePlacement.addEventListener('change', applyStyles);
+    inputStyleNames.addEventListener('change', applyStyles);
+    inputStyleElim.addEventListener('change', applyStyles);
+
+    applyFonts();
+    applySizes();
+    applyStyles();
+    renderMaker();
+    updatePlayButtons();
+  })();
+</script>
+</body>
+</html>
