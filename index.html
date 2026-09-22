@@ -148,6 +148,8 @@
     .btn-add:hover { background: #2ea043; }
     .btn-update { background: #1f6feb; color: white; }
     .btn-update:hover { background: #388bfd; }
+    .btn-delete { background: #da3633; color: white; }
+    .btn-delete:hover { background: #f85149; }
     .btn-advanced { background: #8957e5; color: white; }
     .btn-advanced:hover { background: #a371f7; }
     .btn-save { background: #1f6feb; color: white; }
@@ -810,6 +812,7 @@
     </div>
     <button class="btn btn-add" id="btnAdd">Add</button>
     <button class="btn btn-update" id="btnUpdate">Update</button>
+    <button class="btn btn-delete" id="btnDelete">🗑️ Delete</button>
     <button class="btn btn-advanced" id="btnAdvanced">Advanced</button>
     <button class="btn btn-save" id="btnSave">Save</button>
     <button class="btn btn-load" id="btnLoad">Load</button>
@@ -1044,6 +1047,7 @@
     const inputAlreadyEliminated = document.getElementById('inputAlreadyEliminated');
     const btnAdd = document.getElementById('btnAdd');
     const btnUpdate = document.getElementById('btnUpdate');
+    const btnDelete = document.getElementById('btnDelete');
     const btnAdvanced = document.getElementById('btnAdvanced');
     const btnSave = document.getElementById('btnSave');
     const btnLoad = document.getElementById('btnLoad');
@@ -1098,26 +1102,22 @@
     }
 
     // ─── COLOR NORMALIZATION (hex + HTML names) ────────────────────
-    // Returns a lowercase hex string like "#000080", or null if invalid.
     function normalizeColor(raw) {
       if (raw === undefined || raw === null) return null;
       const input = String(raw).trim();
       if (!input) return null;
 
-      // Fast path — hex with or without #
       const hex = input.replace(/^#/, '');
       if (/^[0-9A-Fa-f]{6}$/.test(hex)) return '#' + hex.toLowerCase();
       if (/^[0-9A-Fa-f]{3}$/.test(hex)) {
         return '#' + hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
       }
 
-      // Named color — let the browser validate & normalize
       const tester = document.createElement('span');
       tester.style.color = '';
       tester.style.color = input;
       if (!tester.style.color) return null;
 
-      // Detached computed style can be unreliable, so briefly attach
       tester.style.position = 'absolute';
       tester.style.visibility = 'hidden';
       tester.style.pointerEvents = 'none';
@@ -1135,18 +1135,11 @@
     }
 
     // ─── ELIMINATED CELL PARSER ─────────────────────────────────────
-    // Handles:
-    //   "Eliminated"                        → eliminated, tag shown after swap
-    //   "Already Eliminated"                → eliminated, tag shown from start
-    //   Custom:"TEXT"(color)                → eliminated with custom text/color
-    //   Already Custom:"TEXT"(color)        → same but shown from start
-    //   anything else                       → not eliminated
     function parseElimCell(raw) {
       const str = (raw || '').trim();
       const lower = str.toLowerCase();
       const hasAlready = lower.includes('already');
 
-      // Custom pattern takes precedence
       const customMatch = str.match(/custom\s*:\s*"([^"]*)"\s*\(\s*([^)]+)\s*\)/i);
       if (customMatch) {
         return {
@@ -1262,23 +1255,23 @@
       document.documentElement.style.setProperty('--style-elim', e.style);
     }
 
-    function getLowestActive(data = athletes) {
-      const active = data.filter(a => !a.eliminated);
-      if (active.length === 0) return null;
-      return active.reduce((min, a) => a.totalPoints < min.totalPoints ? a : min, active[0]);
-    }
-
-    const ELIMINATION_THRESHOLD = 5;
-
+    // ═══════════════════════════════════════════════════════════════
+    // AUTO-ELIMINATION DISABLED
+    // ═══════════════════════════════════════════════════════════════
+    // Previously, any athlete whose totalPoints dropped below
+    // ELIMINATION_THRESHOLD (5) was automatically flagged as eliminated,
+    // even when the user hadn't checked the "Eliminated" checkbox.
+    //
+    // This caused 0-point athletes to be auto-eliminated as soon as
+    // they were added or updated.
+    //
+    // The behavior is now disabled. Athletes are ONLY eliminated when
+    // the user explicitly checks "Eliminated?" or "Already Eliminated?"
+    // (or uses the Custom: syntax in the Advanced modal).
+    // ═══════════════════════════════════════════════════════════════
     function checkAndEliminate() {
-      const active = athletes.filter(a => !a.eliminated);
-      if (active.length < 2) return;
-      const lowest = getLowestActive(athletes);
-      if (lowest && lowest.totalPoints < ELIMINATION_THRESHOLD) {
-        lowest.eliminated = true;
-        if (lowest.showElimAtStart === undefined) lowest.showElimAtStart = true;
-        checkAndEliminate();
-      }
+      // No-op — kept as a function so existing calls remain valid.
+      return;
     }
 
     function ordinal(n) {
@@ -1437,11 +1430,9 @@
       if (alreadyElim) {
         existing.eliminated = true;
         existing.showElimAtStart = true;
-        // keep existing.elimText / existing.elimColor if set
       } else if (eliminated) {
         existing.eliminated = true;
         existing.showElimAtStart = false;
-        // keep existing.elimText / existing.elimColor if set
       } else {
         existing.eliminated = false;
         existing.showElimAtStart = false;
@@ -1450,6 +1441,25 @@
       }
 
       checkAndEliminate();
+      clearInputs();
+      renderMaker();
+      updatePlayButtons();
+    }
+
+    function deleteAthlete() {
+      const name = inputName.value.trim();
+      if (!name) {
+        alert('Please enter the athlete name to delete.');
+        return;
+      }
+      const index = athletes.findIndex(a => a.name.toLowerCase() === name.toLowerCase());
+      if (index === -1) {
+        alert(`No athlete found with the name "${name}".`);
+        return;
+      }
+      const removed = athletes[index];
+      if (!confirm(`Delete athlete "${removed.name}"? This cannot be undone.`)) return;
+      athletes.splice(index, 1);
       clearInputs();
       renderMaker();
       updatePlayButtons();
@@ -1516,7 +1526,6 @@
         const name = (names[i] || '').trim();
         if (!name) continue;
 
-        // Color: hex OR named — normalizeColor handles both
         const color = normalizeColor(colors[i]) || '#f1c40f';
 
         const basePoints = parseInt(points[i], 10) || 0;
@@ -1553,7 +1562,6 @@
       };
     }
 
-    // ─── EXPORT: pull current athletes into the textareas ──────────
     modalExport.addEventListener('click', () => {
       if (athletes.length === 0) {
         alert('No athletes in the leaderboard yet. Add some first.');
@@ -2049,6 +2057,7 @@
 
     btnAdd.addEventListener('click', addAthlete);
     btnUpdate.addEventListener('click', updateAthlete);
+    btnDelete.addEventListener('click', deleteAthlete);
     btnReset.addEventListener('click', resetAll);
     btnPlay.addEventListener('click', () => playRace());
     btnDownload.addEventListener('click', downloadVideo);
