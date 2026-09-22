@@ -10,12 +10,10 @@
       --font-names: system-ui, 'Segoe UI', Roboto, sans-serif;
       --font-elim: system-ui, 'Segoe UI', Roboto, sans-serif;
 
-      /* TEXT SIZE MULTIPLIERS (adjustable in UI) */
       --size-placement: 1;
       --size-names: 1;
       --size-elim: 1;
 
-      /* TEXT WEIGHT & STYLE (adjustable in UI) */
       --weight-placement: 800;
       --style-placement: normal;
       --weight-names: 700;
@@ -488,7 +486,6 @@
       font-weight: var(--weight-elim);
       font-style: var(--style-elim);
       letter-spacing: 0.05em;
-      text-transform: uppercase;
       padding-left: 0.6rem;
       flex-shrink: 0;
       font-family: var(--font-elim);
@@ -592,7 +589,6 @@
       min-width: 0;
     }
 
-    /* Points inside the bar */
     .race-bar-fill-content {
       position: absolute;
       right: 16px;
@@ -626,7 +622,6 @@
       pointer-events: none;
     }
 
-    /* Athlete name */
     .race-athlete-name {
       display: flex;
       align-items: center;
@@ -643,7 +638,6 @@
       );
     }
 
-    /* ELIMINATED tag */
     .race-elim-tag {
       display: flex;
       align-items: center;
@@ -651,7 +645,6 @@
       font-weight: var(--weight-elim);
       font-style: var(--style-elim);
       letter-spacing: 0.06em;
-      text-transform: uppercase;
       flex-shrink: 0;
       font-family: var(--font-elim);
       font-size: clamp(
@@ -781,7 +774,6 @@
       flex-wrap: wrap;
     }
 
-    /* Export button pushed to the left of the footer */
     #modalExport { margin-right: auto; }
   </style>
 </head>
@@ -998,11 +990,10 @@
       <div class="modal-hint">
         Copy columns from Excel and paste each one into the matching textarea below.
         Lines match by position: line 1 of every column = one athlete.<br>
-        <strong style="color:#c9d1d9;">Colors:</strong> use hex with or without <code>#</code> (e.g. <code>F1C40F</code> or <code>#F1C40F</code>).<br>
-        <strong style="color:#c9d1d9;">Eliminated:</strong>
-        type <code>Already Eliminated</code> (or anything containing the word <code>Already</code>) to show the ELIMINATED tag <em>from the very start</em>.
-        Type <code>Eliminated</code> (without <code>Already</code>) to show the tag <em>after the bars finish swapping</em>.
-        Anything else = not eliminated.<br>
+        <strong style="color:#c9d1d9;">Colors:</strong> use hex (with or without <code>#</code>) <em>or</em> an HTML color name like <code>Navy</code>, <code>Brown</code>, <code>RebeccaPurple</code>, <code>MidnightBlue</code>, etc.<br>
+        <strong style="color:#c9d1d9;">Eliminated:</strong> type <code>Eliminated</code> / <code>Already Eliminated</code> for the default red tag, or use <code>Custom:"YOUR TEXT"(color)</code> for a custom label.
+        Prefix with <code>Already</code> to show it from the very start.<br>
+        &nbsp;&nbsp;Examples: <code>Custom:"DISQUALIFIED"(#FF0000)</code> · <code>Custom:"OUT"(Navy)</code> · <code>Already Custom:"DNS"(Crimson)</code><br>
         <strong style="color:#c9d1d9;">Tip:</strong> use the <strong style="color:#ea580c;">Export from Leaderboard</strong> button below to fill these fields automatically from the current list.
       </div>
       <div class="paste-grid">
@@ -1012,7 +1003,7 @@
         </div>
         <div class="paste-field">
           <label>Athlete Color</label>
-          <textarea id="pasteColors" placeholder="000080&#10;964B00&#10;4B0082"></textarea>
+          <textarea id="pasteColors" placeholder="000080&#10;Brown&#10;MidnightBlue&#10;#F1C40F"></textarea>
         </div>
         <div class="paste-field">
           <label>Athlete Points</label>
@@ -1024,7 +1015,7 @@
         </div>
         <div class="paste-field">
           <label>Eliminated</label>
-          <textarea id="pasteElim" placeholder="Already Eliminated&#10;Eliminated&#10;No"></textarea>
+          <textarea id="pasteElim" placeholder="Already Eliminated&#10;Eliminated&#10;Custom:&quot;DQ&quot;(red)&#10;Already Custom:&quot;DNS&quot;(Crimson)"></textarea>
         </div>
       </div>
     </div>
@@ -1106,9 +1097,84 @@
       return isNaN(v) || v < 0.1 ? 0.8 : v;
     }
 
+    // ─── COLOR NORMALIZATION (hex + HTML names) ────────────────────
+    // Returns a lowercase hex string like "#000080", or null if invalid.
+    function normalizeColor(raw) {
+      if (raw === undefined || raw === null) return null;
+      const input = String(raw).trim();
+      if (!input) return null;
+
+      // Fast path — hex with or without #
+      const hex = input.replace(/^#/, '');
+      if (/^[0-9A-Fa-f]{6}$/.test(hex)) return '#' + hex.toLowerCase();
+      if (/^[0-9A-Fa-f]{3}$/.test(hex)) {
+        return '#' + hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+      }
+
+      // Named color — let the browser validate & normalize
+      const tester = document.createElement('span');
+      tester.style.color = '';
+      tester.style.color = input;
+      if (!tester.style.color) return null;
+
+      // Detached computed style can be unreliable, so briefly attach
+      tester.style.position = 'absolute';
+      tester.style.visibility = 'hidden';
+      tester.style.pointerEvents = 'none';
+      document.body.appendChild(tester);
+      const computed = window.getComputedStyle(tester).color;
+      document.body.removeChild(tester);
+
+      const match = computed.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+      if (!match) return null;
+
+      const r = parseInt(match[1], 10).toString(16).padStart(2, '0');
+      const g = parseInt(match[2], 10).toString(16).padStart(2, '0');
+      const b = parseInt(match[3], 10).toString(16).padStart(2, '0');
+      return '#' + r + g + b;
+    }
+
+    // ─── ELIMINATED CELL PARSER ─────────────────────────────────────
+    // Handles:
+    //   "Eliminated"                        → eliminated, tag shown after swap
+    //   "Already Eliminated"                → eliminated, tag shown from start
+    //   Custom:"TEXT"(color)                → eliminated with custom text/color
+    //   Already Custom:"TEXT"(color)        → same but shown from start
+    //   anything else                       → not eliminated
+    function parseElimCell(raw) {
+      const str = (raw || '').trim();
+      const lower = str.toLowerCase();
+      const hasAlready = lower.includes('already');
+
+      // Custom pattern takes precedence
+      const customMatch = str.match(/custom\s*:\s*"([^"]*)"\s*\(\s*([^)]+)\s*\)/i);
+      if (customMatch) {
+        return {
+          eliminated: true,
+          showElimAtStart: hasAlready,
+          elimText: customMatch[1] || null,
+          elimColor: normalizeColor(customMatch[2]) || null
+        };
+      }
+
+      if (lower.includes('eliminated')) {
+        return {
+          eliminated: true,
+          showElimAtStart: hasAlready,
+          elimText: null,
+          elimColor: null
+        };
+      }
+
+      return {
+        eliminated: false,
+        showElimAtStart: false,
+        elimText: null,
+        elimColor: null
+      };
+    }
+
     // ─── EASING MAPS ───────────────────────────────────────────────
-    // CSS versions used in transition-timing-function.
-    // (For Elastic/Bounce we approximate with cubic-bezier that overshoots.)
     const CSS_EASINGS = {
       linear:    'linear',
       ease:      'ease',
@@ -1121,7 +1187,6 @@
       sine:      'cubic-bezier(0.445, 0.05, 0.55, 0.95)'
     };
 
-    // JS easing functions used for the counting number tween.
     function easeValue(type, t) {
       if (t <= 0) return 0;
       if (t >= 1) return 1;
@@ -1294,7 +1359,8 @@
           if (athlete.eliminated) {
             const tag = document.createElement('span');
             tag.className = 'elim-tag';
-            tag.textContent = 'ELIMINATED';
+            tag.textContent = athlete.elimText || 'ELIMINATED';
+            if (athlete.elimColor) tag.style.color = athlete.elimColor;
             row.appendChild(tag);
           }
 
@@ -1341,7 +1407,9 @@
         rewardPoints: reward,
         totalPoints: points + reward,
         eliminated: finalEliminated,
-        showElimAtStart: alreadyElim
+        showElimAtStart: alreadyElim,
+        elimText: null,
+        elimColor: null
       });
 
       checkAndEliminate();
@@ -1369,12 +1437,16 @@
       if (alreadyElim) {
         existing.eliminated = true;
         existing.showElimAtStart = true;
+        // keep existing.elimText / existing.elimColor if set
       } else if (eliminated) {
         existing.eliminated = true;
         existing.showElimAtStart = false;
+        // keep existing.elimText / existing.elimColor if set
       } else {
         existing.eliminated = false;
         existing.showElimAtStart = false;
+        existing.elimText = null;
+        existing.elimColor = null;
       }
 
       checkAndEliminate();
@@ -1444,36 +1516,23 @@
         const name = (names[i] || '').trim();
         if (!name) continue;
 
-        let color = (colors[i] || '').trim();
-        if (!color) {
-          color = '#f1c40f';
-        } else {
-          if (!color.startsWith('#')) color = '#' + color;
-          if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
-          } else if (/^#[0-9A-Fa-f]{3}$/.test(color)) {
-            color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
-          } else {
-            color = '#f1c40f';
-          }
-        }
+        // Color: hex OR named — normalizeColor handles both
+        const color = normalizeColor(colors[i]) || '#f1c40f';
 
         const basePoints = parseInt(points[i], 10) || 0;
         const rewardPoints = parseInt(rewards[i], 10) || 0;
 
-        const elimStr = (elims[i] || '').trim().toLowerCase();
-        const hasAlready = elimStr.includes('already');
-        const hasElim = elimStr.includes('eliminated');
-
-        const isElim = hasAlready || hasElim;
-        const showAtStart = hasAlready;
+        const elim = parseElimCell(elims[i]);
 
         parsed.push({
           name,
           color,
           basePoints,
           rewardPoints,
-          eliminated: isElim,
-          showElimAtStart: showAtStart
+          eliminated: elim.eliminated,
+          showElimAtStart: elim.showElimAtStart,
+          elimText: elim.elimText,
+          elimColor: elim.elimColor
         });
       }
       return parsed;
@@ -1488,7 +1547,9 @@
         rewardPoints: p.rewardPoints,
         totalPoints: p.basePoints + p.rewardPoints,
         eliminated: p.eliminated,
-        showElimAtStart: p.showElimAtStart
+        showElimAtStart: p.showElimAtStart,
+        elimText: p.elimText || null,
+        elimColor: p.elimColor || null
       };
     }
 
@@ -1507,6 +1568,14 @@
       pasteElim.value = athletes
         .map(a => {
           if (!a.eliminated) return '';
+          const hasCustom = a.elimText !== null && a.elimText !== undefined
+                         || a.elimColor !== null && a.elimColor !== undefined;
+          if (hasCustom) {
+            const text = a.elimText || 'ELIMINATED';
+            const color = a.elimColor || '#f85149';
+            const prefix = a.showElimAtStart ? 'Already ' : '';
+            return `${prefix}Custom:"${text}"(${color})`;
+          }
           return a.showElimAtStart ? 'Already Eliminated' : 'Eliminated';
         })
         .join('\n');
@@ -1553,7 +1622,7 @@
         return;
       }
       const data = {
-        version: 1,
+        version: 2,
         savedAt: new Date().toISOString(),
         previewMode: previewMode,
         settings: {
@@ -1577,7 +1646,9 @@
           basePoints: a.basePoints,
           rewardPoints: a.rewardPoints,
           eliminated: a.eliminated,
-          showElimAtStart: a.showElimAtStart
+          showElimAtStart: a.showElimAtStart,
+          elimText: a.elimText || null,
+          elimColor: a.elimColor || null
         }))
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1638,7 +1709,9 @@
             rewardPoints: parseInt(a.rewardPoints, 10) || 0,
             totalPoints: (parseInt(a.basePoints, 10) || 0) + (parseInt(a.rewardPoints, 10) || 0),
             eliminated: !!a.eliminated,
-            showElimAtStart: !!a.showElimAtStart
+            showElimAtStart: !!a.showElimAtStart,
+            elimText: a.elimText || null,
+            elimColor: a.elimColor || null
           }));
 
           if (data.previewMode === 'before' || data.previewMode === 'after') {
@@ -1737,7 +1810,8 @@
         if (athlete.eliminated && athlete.showElimAtStart) {
           const tag = document.createElement('div');
           tag.className = 'race-elim-tag';
-          tag.textContent = 'ELIMINATED';
+          tag.textContent = athlete.elimText || 'ELIMINATED';
+          if (athlete.elimColor) tag.style.color = athlete.elimColor;
           infoGroup.appendChild(tag);
         }
 
@@ -1822,7 +1896,8 @@
                 if (!existing) {
                   const tag = document.createElement('div');
                   tag.className = 'race-elim-tag';
-                  tag.textContent = 'ELIMINATED';
+                  tag.textContent = athlete.elimText || 'ELIMINATED';
+                  if (athlete.elimColor) tag.style.color = athlete.elimColor;
                   entry.infoGroup.appendChild(tag);
                 }
               }
