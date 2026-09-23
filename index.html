@@ -20,6 +20,18 @@
       --style-names: normal;
       --weight-elim: 800;
       --style-elim: normal;
+
+      /* BACKGROUND */
+      --bg-color: #0d1117;
+      --bg-image: none;
+
+      /* TEXT STROKE */
+      --stroke-width-placement: 0px;
+      --stroke-color-placement: #000000;
+      --stroke-width-names: 0px;
+      --stroke-color-names: #000000;
+      --stroke-width-elim: 0px;
+      --stroke-color-elim: #000000;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -356,6 +368,142 @@
     }
     .style-field select:focus { border-color: #f1c40f; }
 
+    /* ---------- BACKGROUND ROW ---------- */
+    .bg-row {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      background: #0d1117;
+      padding: 0.9rem 1.25rem;
+      border-radius: 1rem;
+      border: 1px solid #30363d;
+      margin-bottom: 1rem;
+    }
+
+    .bg-field {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .bg-field label {
+      color: #8b949e;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .bg-field input[type="text"] {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      padding: 0.42rem 0.6rem;
+      color: #f0f6fc;
+      font-size: 0.85rem;
+      outline: none;
+      font-family: inherit;
+      min-width: 220px;
+    }
+    .bg-field input[type="text"]:focus { border-color: #f1c40f; }
+
+    /* ---------- STROKE ROW ---------- */
+    .stroke-row {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      background: #0d1117;
+      padding: 0.9rem 1.25rem;
+      border-radius: 1rem;
+      border: 1px solid #30363d;
+      margin-bottom: 1rem;
+    }
+
+    .stroke-field {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stroke-field label {
+      color: #8b949e;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .stroke-field input[type="text"] {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      padding: 0.38rem 0.55rem;
+      color: #f0f6fc;
+      font-size: 0.8rem;
+      outline: none;
+      width: 85px;
+      font-family: inherit;
+    }
+    .stroke-field input[type="text"]:focus { border-color: #f1c40f; }
+
+    .stroke-field input[type="color"] {
+      width: 32px;
+      height: 30px;
+      border: 1px solid #30363d;
+      border-radius: 0.4rem;
+      background: #161b22;
+      cursor: pointer;
+      padding: 2px;
+      flex-shrink: 0;
+    }
+    .stroke-field input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .stroke-field input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 0.25rem;
+    }
+
+    .stroke-field input[type="range"] {
+      width: 90px;
+      height: 5px;
+      appearance: none;
+      -webkit-appearance: none;
+      background: #21262d;
+      border-radius: 10px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .stroke-field input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #f1c40f;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #161b22;
+    }
+
+    .stroke-field input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #f1c40f;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #161b22;
+    }
+
+    .stroke-value {
+      color: #f1c40f;
+      font-weight: 700;
+      font-size: 0.8rem;
+      min-width: 40px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
     .action-row {
       display: flex;
       gap: 0.75rem;
@@ -403,7 +551,11 @@
     }
 
     .bars-area {
-      background: #0d1117;
+      background-color: var(--bg-color);
+      background-image: var(--bg-image);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       border-radius: 1rem;
       padding: 1.25rem;
       border: 1px solid #30363d;
@@ -451,6 +603,9 @@
       position: relative;
       transition: width 0.4s linear;
       min-width: 0;
+      background-size: 100% 100%;
+      background-position: center;
+      background-repeat: no-repeat;
     }
 
     .bar-fill-content {
@@ -467,6 +622,8 @@
       font-size: 0.85rem;
       text-shadow: 0 1px 1px rgba(255,255,255,0.25);
       font-family: var(--font-names);
+      -webkit-text-stroke: var(--stroke-width-names) var(--stroke-color-names);
+      paint-order: stroke fill;
     }
 
     .athlete-name {
@@ -480,6 +637,22 @@
       text-overflow: ellipsis;
       flex-shrink: 0;
       font-family: var(--font-names);
+      -webkit-text-stroke: var(--stroke-width-names) var(--stroke-color-names);
+      paint-order: stroke fill;
+    }
+
+    /* Image-masked name: background-clip: text makes the image fill the letters */
+    .athlete-name.masked,
+    .race-athlete-name.masked {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent !important;
+      color: transparent !important;
+      -webkit-text-stroke: 0 !important;
+      text-shadow: none !important;
     }
 
     .elim-tag {
@@ -491,6 +664,8 @@
       padding-left: 0.6rem;
       flex-shrink: 0;
       font-family: var(--font-elim);
+      -webkit-text-stroke: var(--stroke-width-elim) var(--stroke-color-elim);
+      paint-order: stroke fill;
     }
 
     .empty-state {
@@ -505,7 +680,11 @@
     .race-overlay {
       position: fixed;
       inset: 0;
-      background: #0d1117;
+      background-color: var(--bg-color);
+      background-image: var(--bg-image);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       z-index: 9999;
       display: none;
       flex-direction: column;
@@ -545,6 +724,8 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.6);
       letter-spacing: -0.02em;
       font-family: var(--font-placement);
+      -webkit-text-stroke: var(--stroke-width-placement) var(--stroke-color-placement);
+      paint-order: stroke fill;
       font-size: clamp(
         calc(0.9rem * var(--size-placement)),
         calc(85vh / var(--n, 8) * 0.48 * var(--size-placement)),
@@ -589,6 +770,9 @@
       width: 0%;
       will-change: width;
       min-width: 0;
+      background-size: 100% 100%;
+      background-position: center;
+      background-repeat: no-repeat;
     }
 
     .race-bar-fill-content {
@@ -604,6 +788,8 @@
       font-style: var(--style-names);
       text-shadow: 0 1px 1px rgba(255,255,255,0.25);
       font-family: var(--font-names);
+      -webkit-text-stroke: var(--stroke-width-names) var(--stroke-color-names);
+      paint-order: stroke fill;
       font-size: clamp(
         calc(1rem * var(--size-names)),
         calc(82vh / var(--n, 8) * 0.42 * var(--size-names)),
@@ -618,7 +804,7 @@
       right: 0;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       white-space: nowrap;
       overflow: hidden;
       pointer-events: none;
@@ -633,6 +819,8 @@
       overflow: hidden;
       text-overflow: ellipsis;
       font-family: var(--font-names);
+      -webkit-text-stroke: var(--stroke-width-names) var(--stroke-color-names);
+      paint-order: stroke fill;
       font-size: clamp(
         calc(1.1rem * var(--size-names)),
         calc(82vh / var(--n, 8) * 0.52 * var(--size-names)),
@@ -649,6 +837,8 @@
       letter-spacing: 0.06em;
       flex-shrink: 0;
       font-family: var(--font-elim);
+      -webkit-text-stroke: var(--stroke-width-elim) var(--stroke-color-elim);
+      paint-order: stroke fill;
       font-size: clamp(
         calc(1rem * var(--size-elim)),
         calc(82vh / var(--n, 8) * 0.5 * var(--size-elim)),
@@ -673,7 +863,7 @@
       background: #161b22;
       border: 1px solid #30363d;
       border-radius: 1rem;
-      max-width: 1200px;
+      max-width: 1700px;
       width: 100%;
       max-height: 90vh;
       display: flex;
@@ -734,7 +924,7 @@
 
     .paste-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 1rem;
     }
 
@@ -758,11 +948,14 @@
       font-family: 'Courier New', monospace;
       font-size: 0.85rem;
       padding: 0.6rem 0.75rem;
-      min-height: 220px;
+      min-height: 280px;
       resize: vertical;
       outline: none;
-      line-height: 1.5;
+      line-height: 1.55;
       transition: border-color 0.2s;
+      white-space: pre;
+      overflow-wrap: normal;
+      overflow-x: auto;
     }
     .paste-field textarea:focus { border-color: #8957e5; }
     .paste-field textarea::placeholder { color: #484f58; }
@@ -828,6 +1021,11 @@
     <div class="speed-field">
       <label>Points Grow</label>
       <input type="number" id="inputGrowDuration" value="0.8" min="0.1" max="5" step="0.1">
+      <span class="speed-unit">sec</span>
+    </div>
+    <div class="speed-field">
+      <label>Swap Delay</label>
+      <input type="number" id="inputWaitAfterGrow" value="1" min="0" max="60" step="0.1">
       <span class="speed-unit">sec</span>
     </div>
     <div class="speed-field">
@@ -953,6 +1151,41 @@
     </div>
   </div>
 
+  <div class="bg-row">
+    <div class="bg-field">
+      <label>Background Color</label>
+      <input type="text" id="inputBgColor" value="#0d1117" placeholder="#0d1117 or Black">
+    </div>
+    <div class="bg-field">
+      <label>Background Image URL</label>
+      <input type="text" id="inputBgImage" placeholder="Add the image address">
+    </div>
+  </div>
+
+  <div class="stroke-row">
+    <div class="stroke-field">
+      <label>Placement Stroke</label>
+      <input type="color" id="inputStrokeColorPlacementPicker" value="#000000" title="Pick a color">
+      <input type="text" id="inputStrokeColorPlacement" value="#000000" placeholder="#000 or Black">
+      <input type="range" id="inputStrokeWidthPlacement" min="0" max="5" step="0.5" value="0">
+      <span class="stroke-value" id="strokeWidthPlacementVal">0.0px</span>
+    </div>
+    <div class="stroke-field">
+      <label>Names &amp; Points Stroke</label>
+      <input type="color" id="inputStrokeColorNamesPicker" value="#000000" title="Pick a color">
+      <input type="text" id="inputStrokeColorNames" value="#000000" placeholder="#000 or Black">
+      <input type="range" id="inputStrokeWidthNames" min="0" max="5" step="0.5" value="0">
+      <span class="stroke-value" id="strokeWidthNamesVal">0.0px</span>
+    </div>
+    <div class="stroke-field">
+      <label>Eliminated Stroke</label>
+      <input type="color" id="inputStrokeColorElimPicker" value="#000000" title="Pick a color">
+      <input type="text" id="inputStrokeColorElim" value="#000000" placeholder="#000 or Black">
+      <input type="range" id="inputStrokeWidthElim" min="0" max="5" step="0.5" value="0">
+      <span class="stroke-value" id="strokeWidthElimVal">0.0px</span>
+    </div>
+  </div>
+
   <div class="action-row">
     <button class="btn btn-play" id="btnPlay" disabled>▶️ Play Race</button>
     <button class="btn btn-download" id="btnDownload" disabled>📥 Download Video</button>
@@ -993,6 +1226,7 @@
       <div class="modal-hint">
         Copy columns from Excel and paste each one into the matching textarea below.
         Lines match by position: line 1 of every column = one athlete.<br>
+        <strong style="color:#c9d1d9;">Image:</strong> paste an image URL — it will fill the <em>bar</em> and also mask the <em>athlete name text</em>. Leave empty for a solid color bar and normal text.<br>
         <strong style="color:#c9d1d9;">Colors:</strong> use hex (with or without <code>#</code>) <em>or</em> an HTML color name like <code>Navy</code>, <code>Brown</code>, <code>RebeccaPurple</code>, <code>MidnightBlue</code>, etc.<br>
         <strong style="color:#c9d1d9;">Eliminated:</strong> type <code>Eliminated</code> / <code>Already Eliminated</code> for the default red tag, or use <code>Custom:"YOUR TEXT"(color)</code> for a custom label.
         Prefix with <code>Already</code> to show it from the very start.<br>
@@ -1003,6 +1237,10 @@
         <div class="paste-field">
           <label>Athlete Names</label>
           <textarea id="pasteNames" placeholder="Navy&#10;Brown&#10;Indigo"></textarea>
+        </div>
+        <div class="paste-field">
+          <label>Athlete Image (URL)</label>
+          <textarea id="pasteImages" placeholder="(Input the image address, the image will be displayed as a bar)"></textarea>
         </div>
         <div class="paste-field">
           <label>Athlete Color</label>
@@ -1054,6 +1292,7 @@
     const fileLoad = document.getElementById('fileLoad');
     const inputSwapDuration = document.getElementById('inputSwapDuration');
     const inputGrowDuration = document.getElementById('inputGrowDuration');
+    const inputWaitAfterGrow = document.getElementById('inputWaitAfterGrow');
     const inputEaseGrow = document.getElementById('inputEaseGrow');
     const inputEaseSwap = document.getElementById('inputEaseSwap');
     const inputFontPlacement = document.getElementById('inputFontPlacement');
@@ -1068,6 +1307,20 @@
     const inputStylePlacement = document.getElementById('inputStylePlacement');
     const inputStyleNames = document.getElementById('inputStyleNames');
     const inputStyleElim = document.getElementById('inputStyleElim');
+    const inputBgColor = document.getElementById('inputBgColor');
+    const inputBgImage = document.getElementById('inputBgImage');
+    const inputStrokeColorPlacement = document.getElementById('inputStrokeColorPlacement');
+    const inputStrokeColorPlacementPicker = document.getElementById('inputStrokeColorPlacementPicker');
+    const inputStrokeWidthPlacement = document.getElementById('inputStrokeWidthPlacement');
+    const inputStrokeColorNames = document.getElementById('inputStrokeColorNames');
+    const inputStrokeColorNamesPicker = document.getElementById('inputStrokeColorNamesPicker');
+    const inputStrokeWidthNames = document.getElementById('inputStrokeWidthNames');
+    const inputStrokeColorElim = document.getElementById('inputStrokeColorElim');
+    const inputStrokeColorElimPicker = document.getElementById('inputStrokeColorElimPicker');
+    const inputStrokeWidthElim = document.getElementById('inputStrokeWidthElim');
+    const strokeWidthPlacementVal = document.getElementById('strokeWidthPlacementVal');
+    const strokeWidthNamesVal = document.getElementById('strokeWidthNamesVal');
+    const strokeWidthElimVal = document.getElementById('strokeWidthElimVal');
     const btnPlay = document.getElementById('btnPlay');
     const btnDownload = document.getElementById('btnDownload');
     const btnReset = document.getElementById('btnReset');
@@ -1087,6 +1340,7 @@
     const modalReplace = document.getElementById('modalReplace');
     const modalExport = document.getElementById('modalExport');
     const pasteNames = document.getElementById('pasteNames');
+    const pasteImages = document.getElementById('pasteImages');
     const pasteColors = document.getElementById('pasteColors');
     const pastePoints = document.getElementById('pastePoints');
     const pasteReward = document.getElementById('pasteReward');
@@ -1099,6 +1353,11 @@
     function getGrowDuration() {
       const v = parseFloat(inputGrowDuration.value);
       return isNaN(v) || v < 0.1 ? 0.8 : v;
+    }
+    function getWaitAfterGrowMs() {
+      const v = parseFloat(inputWaitAfterGrow.value);
+      if (isNaN(v) || v < 0) return 1000;
+      return v * 1000;
     }
 
     // ─── COLOR NORMALIZATION (hex + HTML names) ────────────────────
@@ -1132,6 +1391,14 @@
       const g = parseInt(match[2], 10).toString(16).padStart(2, '0');
       const b = parseInt(match[3], 10).toString(16).padStart(2, '0');
       return '#' + r + g + b;
+    }
+
+    function resolveCssColor(raw, fallback) {
+      if (raw === undefined || raw === null) return fallback;
+      const v = String(raw).trim();
+      if (!v) return fallback;
+      const normalized = normalizeColor(v);
+      return normalized || v;
     }
 
     // ─── ELIMINATED CELL PARSER ─────────────────────────────────────
@@ -1255,22 +1522,63 @@
       document.documentElement.style.setProperty('--style-elim', e.style);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // AUTO-ELIMINATION DISABLED
-    // ═══════════════════════════════════════════════════════════════
-    // Previously, any athlete whose totalPoints dropped below
-    // ELIMINATION_THRESHOLD (5) was automatically flagged as eliminated,
-    // even when the user hadn't checked the "Eliminated" checkbox.
-    //
-    // This caused 0-point athletes to be auto-eliminated as soon as
-    // they were added or updated.
-    //
-    // The behavior is now disabled. Athletes are ONLY eliminated when
-    // the user explicitly checks "Eliminated?" or "Already Eliminated?"
-    // (or uses the Custom: syntax in the Advanced modal).
-    // ═══════════════════════════════════════════════════════════════
+    // ─── BACKGROUND & STROKE ───────────────────────────────────────
+    function applyBackground() {
+      const color = resolveCssColor(inputBgColor.value, '#0d1117');
+      const img = inputBgImage.value.trim();
+      document.documentElement.style.setProperty('--bg-color', color);
+      document.documentElement.style.setProperty(
+        '--bg-image',
+        img ? `url("${img.replace(/"/g, '\\"')}")` : 'none'
+      );
+    }
+
+    function applyStrokes() {
+      const pw = parseFloat(inputStrokeWidthPlacement.value) || 0;
+      const nw = parseFloat(inputStrokeWidthNames.value) || 0;
+      const ew = parseFloat(inputStrokeWidthElim.value) || 0;
+      const pc = resolveCssColor(inputStrokeColorPlacement.value, '#000000');
+      const nc = resolveCssColor(inputStrokeColorNames.value, '#000000');
+      const ec = resolveCssColor(inputStrokeColorElim.value, '#000000');
+
+      document.documentElement.style.setProperty('--stroke-width-placement', pw + 'px');
+      document.documentElement.style.setProperty('--stroke-color-placement', pc);
+      document.documentElement.style.setProperty('--stroke-width-names', nw + 'px');
+      document.documentElement.style.setProperty('--stroke-color-names', nc);
+      document.documentElement.style.setProperty('--stroke-width-elim', ew + 'px');
+      document.documentElement.style.setProperty('--stroke-color-elim', ec);
+
+      strokeWidthPlacementVal.textContent = pw.toFixed(1) + 'px';
+      strokeWidthNamesVal.textContent = nw.toFixed(1) + 'px';
+      strokeWidthElimVal.textContent = ew.toFixed(1) + 'px';
+    }
+
+    function syncColorPair(textEl, pickerEl) {
+      textEl.addEventListener('input', () => {
+        const n = normalizeColor(textEl.value);
+        if (n) pickerEl.value = n;
+        applyStrokes();
+      });
+      textEl.addEventListener('change', () => {
+        const n = normalizeColor(textEl.value);
+        if (n) {
+          pickerEl.value = n;
+          textEl.value = n;
+        }
+        applyStrokes();
+      });
+      pickerEl.addEventListener('input', () => {
+        textEl.value = pickerEl.value;
+        applyStrokes();
+      });
+    }
+
+    syncColorPair(inputStrokeColorPlacement, inputStrokeColorPlacementPicker);
+    syncColorPair(inputStrokeColorNames, inputStrokeColorNamesPicker);
+    syncColorPair(inputStrokeColorElim, inputStrokeColorElimPicker);
+
+    // ─── AUTO-ELIMINATION DISABLED ─────────────────────────────────
     function checkAndEliminate() {
-      // No-op — kept as a function so existing calls remain valid.
       return;
     }
 
@@ -1304,6 +1612,32 @@
       return previewMode === 'after' ? a.totalPoints : a.basePoints;
     }
 
+    // Applies either the athlete's color or image URL to a bar-fill element.
+    function applyBarAppearance(el, athlete) {
+      if (athlete.imageUrl) {
+        el.style.background = 'transparent';
+        el.style.backgroundImage = `url("${athlete.imageUrl.replace(/"/g, '\\"')}")`;
+        el.style.backgroundSize = '100% 100%';
+        el.style.backgroundPosition = 'center';
+        el.style.backgroundRepeat = 'no-repeat';
+      } else {
+        el.style.backgroundImage = '';
+        el.style.background = athlete.color || '#f1c40f';
+      }
+    }
+
+    // Applies the image mask to an athlete name element, or clears it.
+    function applyNameAppearance(el, athlete) {
+      if (athlete.imageUrl) {
+        el.style.backgroundImage = `url("${athlete.imageUrl.replace(/"/g, '\\"')}")`;
+        el.classList.add('masked');
+      } else {
+        el.style.backgroundImage = '';
+        el.classList.remove('masked');
+        el.style.color = athlete.color || '#f1c40f';
+      }
+    }
+
     function renderMaker() {
       const data = athletes;
       const ordered = data.slice().sort((a, b) => previewPointsFor(b) - previewPointsFor(a));
@@ -1327,7 +1661,7 @@
 
           const fill = document.createElement('div');
           fill.className = 'bar-fill';
-          fill.style.background = athlete.color || '#f1c40f';
+          applyBarAppearance(fill, athlete);
           const pct = (previewPointsFor(athlete) / maxPoints) * 100;
           fill.style.width = Math.min(pct, 100) + '%';
 
@@ -1341,12 +1675,13 @@
           bg.appendChild(fill);
           track.appendChild(bg);
 
+          row.appendChild(track);
+
           const name = document.createElement('div');
           name.className = 'athlete-name';
           name.textContent = athlete.name;
-          name.style.color = athlete.color || '#f1c40f';
+          applyNameAppearance(name, athlete);
 
-          row.appendChild(track);
           row.appendChild(name);
 
           if (athlete.eliminated) {
@@ -1395,6 +1730,7 @@
       athletes.push({
         id: nextId++,
         name: name,
+        imageUrl: null,
         color: inputColor.value || '#f1c40f',
         basePoints: points,
         rewardPoints: reward,
@@ -1512,13 +1848,15 @@
 
     function parseAdvanced() {
       const names = pasteNames.value.split('\n').map(s => s.trim());
+      const images = pasteImages.value.split('\n').map(s => s.trim());
       const colors = pasteColors.value.split('\n').map(s => s.trim());
       const points = pastePoints.value.split('\n').map(s => s.trim());
       const rewards = pasteReward.value.split('\n').map(s => s.trim());
       const elims = pasteElim.value.split('\n').map(s => s.trim());
 
       const maxLen = Math.max(
-        names.length, colors.length, points.length, rewards.length, elims.length
+        names.length, images.length, colors.length,
+        points.length, rewards.length, elims.length
       );
 
       const parsed = [];
@@ -1526,6 +1864,7 @@
         const name = (names[i] || '').trim();
         if (!name) continue;
 
+        const imageUrl = (images[i] || '').trim() || null;
         const color = normalizeColor(colors[i]) || '#f1c40f';
 
         const basePoints = parseInt(points[i], 10) || 0;
@@ -1535,6 +1874,7 @@
 
         parsed.push({
           name,
+          imageUrl,
           color,
           basePoints,
           rewardPoints,
@@ -1551,6 +1891,7 @@
       return {
         id: nextId++,
         name: p.name,
+        imageUrl: p.imageUrl || null,
         color: p.color,
         basePoints: p.basePoints,
         rewardPoints: p.rewardPoints,
@@ -1568,6 +1909,7 @@
         return;
       }
       pasteNames.value = athletes.map(a => a.name).join('\n');
+      pasteImages.value = athletes.map(a => a.imageUrl || '').join('\n');
       pasteColors.value = athletes
         .map(a => (a.color || '#f1c40f').replace('#', '').toUpperCase())
         .join('\n');
@@ -1630,12 +1972,13 @@
         return;
       }
       const data = {
-        version: 2,
+        version: 4,
         savedAt: new Date().toISOString(),
         previewMode: previewMode,
         settings: {
           swapDuration: inputSwapDuration.value,
           growDuration: inputGrowDuration.value,
+          waitAfterGrow: inputWaitAfterGrow.value,
           easeGrow: inputEaseGrow.value,
           easeSwap: inputEaseSwap.value,
           fontPlacement: inputFontPlacement.value,
@@ -1646,10 +1989,19 @@
           sizeElim: inputSizeElim.value,
           stylePlacement: inputStylePlacement.value,
           styleNames: inputStyleNames.value,
-          styleElim: inputStyleElim.value
+          styleElim: inputStyleElim.value,
+          bgColor: inputBgColor.value,
+          bgImage: inputBgImage.value,
+          strokeColorPlacement: inputStrokeColorPlacement.value,
+          strokeWidthPlacement: inputStrokeWidthPlacement.value,
+          strokeColorNames: inputStrokeColorNames.value,
+          strokeWidthNames: inputStrokeWidthNames.value,
+          strokeColorElim: inputStrokeColorElim.value,
+          strokeWidthElim: inputStrokeWidthElim.value
         },
         athletes: athletes.map(a => ({
           name: a.name,
+          imageUrl: a.imageUrl || null,
           color: a.color,
           basePoints: a.basePoints,
           rewardPoints: a.rewardPoints,
@@ -1691,27 +2043,54 @@
           if (!confirm(`Load ${data.athletes.length} athlete(s)? This will replace the current list.`)) return;
 
           if (data.settings) {
-            if (data.settings.swapDuration !== undefined) inputSwapDuration.value = data.settings.swapDuration;
-            if (data.settings.growDuration !== undefined) inputGrowDuration.value = data.settings.growDuration;
-            if (data.settings.easeGrow) inputEaseGrow.value = data.settings.easeGrow;
-            if (data.settings.easeSwap) inputEaseSwap.value = data.settings.easeSwap;
-            if (data.settings.fontPlacement) inputFontPlacement.value = data.settings.fontPlacement;
-            if (data.settings.fontNames) inputFontNames.value = data.settings.fontNames;
-            if (data.settings.fontElim) inputFontElim.value = data.settings.fontElim;
-            if (data.settings.sizePlacement !== undefined) inputSizePlacement.value = data.settings.sizePlacement;
-            if (data.settings.sizeNames !== undefined) inputSizeNames.value = data.settings.sizeNames;
-            if (data.settings.sizeElim !== undefined) inputSizeElim.value = data.settings.sizeElim;
-            if (data.settings.stylePlacement) inputStylePlacement.value = data.settings.stylePlacement;
-            if (data.settings.styleNames) inputStyleNames.value = data.settings.styleNames;
-            if (data.settings.styleElim) inputStyleElim.value = data.settings.styleElim;
+            const s = data.settings;
+            if (s.swapDuration !== undefined) inputSwapDuration.value = s.swapDuration;
+            if (s.growDuration !== undefined) inputGrowDuration.value = s.growDuration;
+            if (s.waitAfterGrow !== undefined) inputWaitAfterGrow.value = s.waitAfterGrow;
+            if (s.easeGrow) inputEaseGrow.value = s.easeGrow;
+            if (s.easeSwap) inputEaseSwap.value = s.easeSwap;
+            if (s.fontPlacement) inputFontPlacement.value = s.fontPlacement;
+            if (s.fontNames) inputFontNames.value = s.fontNames;
+            if (s.fontElim) inputFontElim.value = s.fontElim;
+            if (s.sizePlacement !== undefined) inputSizePlacement.value = s.sizePlacement;
+            if (s.sizeNames !== undefined) inputSizeNames.value = s.sizeNames;
+            if (s.sizeElim !== undefined) inputSizeElim.value = s.sizeElim;
+            if (s.stylePlacement) inputStylePlacement.value = s.stylePlacement;
+            if (s.styleNames) inputStyleNames.value = s.styleNames;
+            if (s.styleElim) inputStyleElim.value = s.styleElim;
+            if (s.bgColor !== undefined) inputBgColor.value = s.bgColor;
+            if (s.bgImage !== undefined) inputBgImage.value = s.bgImage;
+
+            if (s.strokeColorPlacement) {
+              inputStrokeColorPlacement.value = s.strokeColorPlacement;
+              const n = normalizeColor(s.strokeColorPlacement);
+              if (n) inputStrokeColorPlacementPicker.value = n;
+            }
+            if (s.strokeWidthPlacement !== undefined) inputStrokeWidthPlacement.value = s.strokeWidthPlacement;
+            if (s.strokeColorNames) {
+              inputStrokeColorNames.value = s.strokeColorNames;
+              const n = normalizeColor(s.strokeColorNames);
+              if (n) inputStrokeColorNamesPicker.value = n;
+            }
+            if (s.strokeWidthNames !== undefined) inputStrokeWidthNames.value = s.strokeWidthNames;
+            if (s.strokeColorElim) {
+              inputStrokeColorElim.value = s.strokeColorElim;
+              const n = normalizeColor(s.strokeColorElim);
+              if (n) inputStrokeColorElimPicker.value = n;
+            }
+            if (s.strokeWidthElim !== undefined) inputStrokeWidthElim.value = s.strokeWidthElim;
+
             applyFonts();
             applySizes();
             applyStyles();
+            applyBackground();
+            applyStrokes();
           }
 
           athletes = data.athletes.map(a => ({
             id: nextId++,
             name: String(a.name || 'Unknown'),
+            imageUrl: a.imageUrl || null,
             color: a.color || '#f1c40f',
             basePoints: parseInt(a.basePoints, 10) || 0,
             rewardPoints: parseInt(a.rewardPoints, 10) || 0,
@@ -1737,7 +2116,7 @@
     });
 
     // ═══════════════════════════════════════════════════════════════
-    // PLAY RACE — accepts optional onComplete callback
+    // PLAY RACE
     // ═══════════════════════════════════════════════════════════════
     function playRace(onComplete) {
       if (athletes.length === 0) return;
@@ -1745,6 +2124,8 @@
       applyFonts();
       applySizes();
       applyStyles();
+      applyBackground();
+      applyStrokes();
 
       const growEaseCSS = getGrowEasingCSS();
       const swapEaseCSS = getSwapEasingCSS();
@@ -1791,7 +2172,7 @@
 
         const fill = document.createElement('div');
         fill.className = 'race-bar-fill';
-        fill.style.background = athlete.color || '#f1c40f';
+        applyBarAppearance(fill, athlete);
         const pctBefore = pctFor(athlete.totalPoints, globalMax);
         fill.style.width = pctBefore + '%';
 
@@ -1812,7 +2193,7 @@
         const name = document.createElement('div');
         name.className = 'race-athlete-name';
         name.textContent = athlete.name;
-        name.style.color = athlete.color || '#f1c40f';
+        applyNameAppearance(name, athlete);
         infoGroup.appendChild(name);
 
         if (athlete.eliminated && athlete.showElimAtStart) {
@@ -1834,8 +2215,8 @@
 
       const swapDur = getSwapDuration();
       const growDur = getGrowDuration();
+      const waitAfterGrow = getWaitAfterGrowMs();
       const initialPause = 1500;
-      const waitAfterGrow = 1000;
       const waitAfterSwap = 1000;
 
       setTimeout(() => {
@@ -1932,8 +2313,7 @@
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // DOWNLOAD VIDEO — uses screen capture + MediaRecorder
-    // Priority: MP4 (H.264) → WebM
+    // DOWNLOAD VIDEO
     // ═══════════════════════════════════════════════════════════════
     async function downloadVideo() {
       if (athletes.length === 0) return;
@@ -2078,9 +2458,20 @@
     inputStyleNames.addEventListener('change', applyStyles);
     inputStyleElim.addEventListener('change', applyStyles);
 
+    inputBgColor.addEventListener('input', applyBackground);
+    inputBgColor.addEventListener('change', applyBackground);
+    inputBgImage.addEventListener('input', applyBackground);
+    inputBgImage.addEventListener('change', applyBackground);
+
+    inputStrokeWidthPlacement.addEventListener('input', applyStrokes);
+    inputStrokeWidthNames.addEventListener('input', applyStrokes);
+    inputStrokeWidthElim.addEventListener('input', applyStrokes);
+
     applyFonts();
     applySizes();
     applyStyles();
+    applyBackground();
+    applyStrokes();
     renderMaker();
     updatePlayButtons();
   })();
