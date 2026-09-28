@@ -258,7 +258,6 @@
 
     .speed-unit { color: #6e7681; font-size: 0.85rem; }
 
-    /* ---------- SIZE ROW ---------- */
     .size-row {
       display: flex;
       gap: 1.5rem;
@@ -327,7 +326,6 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* ---------- STYLE ROW ---------- */
     .style-row {
       display: flex;
       gap: 1.5rem;
@@ -368,7 +366,6 @@
     }
     .style-field select:focus { border-color: #f1c40f; }
 
-    /* ---------- BACKGROUND ROW ---------- */
     .bg-row {
       display: flex;
       gap: 1.5rem;
@@ -408,7 +405,6 @@
     }
     .bg-field input[type="text"]:focus { border-color: #f1c40f; }
 
-    /* ---------- STROKE ROW ---------- */
     .stroke-row {
       display: flex;
       gap: 1.5rem;
@@ -641,7 +637,6 @@
       paint-order: stroke fill;
     }
 
-    /* Image-masked name: background-clip: text makes the image fill the letters */
     .athlete-name.masked,
     .race-athlete-name.masked {
       background-size: cover;
@@ -676,7 +671,6 @@
       font-size: 0.95rem;
     }
 
-    /* ============ FULLSCREEN RACE OVERLAY ============ */
     .race-overlay {
       position: fixed;
       inset: 0;
@@ -1227,9 +1221,10 @@
         Copy columns from Excel and paste each one into the matching textarea below.
         Lines match by position: line 1 of every column = one athlete.<br>
         <strong style="color:#c9d1d9;">Image:</strong> paste an image URL — it will fill the <em>bar</em> and also mask the <em>athlete name text</em>. Leave empty for a solid color bar and normal text.<br>
-        <strong style="color:#c9d1d9;">Colors:</strong> use hex (with or without <code>#</code>) <em>or</em> an HTML color name like <code>Navy</code>, <code>Brown</code>, <code>RebeccaPurple</code>, <code>MidnightBlue</code>, etc.<br>
-        <strong style="color:#c9d1d9;">Eliminated:</strong> type <code>Eliminated</code> / <code>Already Eliminated</code> for the default red tag, or use <code>Custom:"YOUR TEXT"(color)</code> for a custom label.
-        Prefix with <code>Already</code> to show it from the very start.<br>
+        <strong style="color:#c9d1d9;">Colors:</strong> use hex (with or without <code>#</code>), an HTML color name (<code>Navy</code>, <code>Brown</code>, <code>RebeccaPurple</code>…), <em>or</em> a gradient:<br>
+        &nbsp;&nbsp;<code>Gradient(Red,Blue)[Linear90]</code> · <code>Gradient(Blue,Purple,Pink)[Linear45]</code> · <code>Gradient(Red,Yellow,Green)[Radial]</code><br>
+        &nbsp;&nbsp;(Any number of colors. <code>[LinearN]</code> = angle in degrees, <code>[Radial]</code> = circular. Omit brackets → 90° linear.)<br>
+        <strong style="color:#c9d1d9;">Eliminated:</strong> type <code>Eliminated</code> / <code>Already Eliminated</code> for the default red tag, or use <code>Custom:"YOUR TEXT"(color)</code> for a custom label. Prefix with <code>Already</code> to show it from the very start.<br>
         &nbsp;&nbsp;Examples: <code>Custom:"DISQUALIFIED"(#FF0000)</code> · <code>Custom:"OUT"(Navy)</code> · <code>Already Custom:"DNS"(Crimson)</code><br>
         <strong style="color:#c9d1d9;">Tip:</strong> use the <strong style="color:#ea580c;">Export from Leaderboard</strong> button below to fill these fields automatically from the current list.
       </div>
@@ -1244,7 +1239,7 @@
         </div>
         <div class="paste-field">
           <label>Athlete Color</label>
-          <textarea id="pasteColors" placeholder="000080&#10;Brown&#10;MidnightBlue&#10;#F1C40F"></textarea>
+          <textarea id="pasteColors" placeholder="000080&#10;Brown&#10;MidnightBlue&#10;#F1C40F&#10;Gradient(Red,Blue)[Linear90]&#10;Gradient(Blue,Purple,Pink)[Radial]"></textarea>
         </div>
         <div class="paste-field">
           <label>Athlete Points</label>
@@ -1401,6 +1396,71 @@
       return normalized || v;
     }
 
+    // ─── GRADIENT SYNTAX PARSER ────────────────────────────────────
+    // Accepts:  Gradient(c1, c2, c3, ...)          → linear 90° by default
+    //           Gradient(c1, c2)[LinearN]           → linear at N degrees
+    //           Gradient(c1, c2)[Radial]            → radial gradient
+    // Colors can be hex (#RRGGBB / RRGGBB) or CSS names.
+    // Returns a CSS gradient string, or null if the input isn't a valid Gradient().
+    function parseGradientSyntax(raw) {
+      if (raw === undefined || raw === null) return null;
+      const str = String(raw).trim();
+      if (!str) return null;
+
+      const m = str.match(/^gradient\s*\(\s*([^)]+)\s*\)\s*(?:\[\s*([^\]]+)\s*\])?$/i);
+      if (!m) return null;
+
+      const rawColors = m[1].split(',').map(c => c.trim()).filter(c => c.length > 0);
+      if (rawColors.length < 2) return null;
+
+      const colors = rawColors.map(c => resolveCssColor(c, c));
+
+      const modeRaw = (m[2] || 'Linear90').trim();
+
+      if (/^radial$/i.test(modeRaw)) {
+        return `radial-gradient(circle, ${colors.join(', ')})`;
+      }
+
+      const lm = modeRaw.match(/^linear\s*(\d+)?$/i);
+      if (lm) {
+        const deg = lm[1] ? parseInt(lm[1], 10) : 90;
+        return `linear-gradient(${deg}deg, ${colors.join(', ')})`;
+      }
+
+      // Unknown bracket content → default to linear 90
+      return `linear-gradient(90deg, ${colors.join(', ')})`;
+    }
+
+    // Converts a CSS gradient string back into the compact "Gradient(...)[...]" syntax.
+    // Returns null if the input isn't a CSS gradient.
+    function cssToGradientSyntax(cssStr) {
+      if (!cssStr || !/gradient/i.test(cssStr)) return null;
+
+      const linear = cssStr.match(/linear-gradient\(\s*(-?\d+(?:\.\d+)?)deg\s*,\s*(.+?)\s*\)$/i);
+      if (linear) {
+        const deg = linear[1];
+        const colors = linear[2].split(/,\s*/).map(c => c.trim());
+        return `Gradient(${colors.join(', ')})[Linear${deg}]`;
+      }
+
+      const radial = cssStr.match(/radial-gradient\(\s*(?:circle|ellipse)\s*(?:at\s+[^,]+)?,\s*(.+?)\s*\)$/i);
+      if (radial) {
+        const colors = radial[1].split(/,\s*/).map(c => c.trim());
+        return `Gradient(${colors.join(', ')})[Radial]`;
+      }
+
+      return null;
+    }
+
+    // Extracts the first solid hex color from a CSS value (for text fills that
+    // can't accept gradients — the "color" CSS property).
+    function extractFirstColor(cssStr, fallback) {
+      if (!cssStr) return fallback;
+      if (!/gradient/i.test(cssStr)) return cssStr;
+      const m = cssStr.match(/#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}/);
+      return m ? m[0] : fallback;
+    }
+
     // ─── ELIMINATED CELL PARSER ─────────────────────────────────────
     function parseElimCell(raw) {
       const str = (raw || '').trim();
@@ -1522,7 +1582,6 @@
       document.documentElement.style.setProperty('--style-elim', e.style);
     }
 
-    // ─── BACKGROUND & STROKE ───────────────────────────────────────
     function applyBackground() {
       const color = resolveCssColor(inputBgColor.value, '#0d1117');
       const img = inputBgImage.value.trim();
@@ -1577,7 +1636,6 @@
     syncColorPair(inputStrokeColorNames, inputStrokeColorNamesPicker);
     syncColorPair(inputStrokeColorElim, inputStrokeColorElimPicker);
 
-    // ─── AUTO-ELIMINATION DISABLED ─────────────────────────────────
     function checkAndEliminate() {
       return;
     }
@@ -1612,7 +1670,7 @@
       return previewMode === 'after' ? a.totalPoints : a.basePoints;
     }
 
-    // Applies either the athlete's color or image URL to a bar-fill element.
+    // Applies either the athlete's color/gradient or image URL to a bar-fill element.
     function applyBarAppearance(el, athlete) {
       if (athlete.imageUrl) {
         el.style.background = 'transparent';
@@ -1621,7 +1679,11 @@
         el.style.backgroundPosition = 'center';
         el.style.backgroundRepeat = 'no-repeat';
       } else {
+        // Clear image-specific properties first
         el.style.backgroundImage = '';
+        el.style.backgroundSize = '';
+        el.style.backgroundPosition = '';
+        el.style.backgroundRepeat = '';
         el.style.background = athlete.color || '#f1c40f';
       }
     }
@@ -1634,7 +1696,8 @@
       } else {
         el.style.backgroundImage = '';
         el.classList.remove('masked');
-        el.style.color = athlete.color || '#f1c40f';
+        // Names can't render gradients, so pick the first color of a gradient
+        el.style.color = extractFirstColor(athlete.color, '#f1c40f');
       }
     }
 
@@ -1865,7 +1928,12 @@
         if (!name) continue;
 
         const imageUrl = (images[i] || '').trim() || null;
-        const color = normalizeColor(colors[i]) || '#f1c40f';
+
+        // Try gradient first, fall back to solid color, then to gold.
+        const color =
+          parseGradientSyntax(colors[i]) ||
+          normalizeColor(colors[i]) ||
+          '#f1c40f';
 
         const basePoints = parseInt(points[i], 10) || 0;
         const rewardPoints = parseInt(rewards[i], 10) || 0;
@@ -1911,7 +1979,14 @@
       pasteNames.value = athletes.map(a => a.name).join('\n');
       pasteImages.value = athletes.map(a => a.imageUrl || '').join('\n');
       pasteColors.value = athletes
-        .map(a => (a.color || '#f1c40f').replace('#', '').toUpperCase())
+        .map(a => {
+          const c = a.color || '#f1c40f';
+          // If it's a gradient CSS string, re-encode it back to Gradient() syntax.
+          const gradSyntax = cssToGradientSyntax(c);
+          if (gradSyntax) return gradSyntax;
+          // Otherwise treat as a hex color and export the raw hex form.
+          return c.replace('#', '').toUpperCase();
+        })
         .join('\n');
       pastePoints.value = athletes.map(a => a.basePoints).join('\n');
       pasteReward.value = athletes.map(a => a.rewardPoints).join('\n');
@@ -2115,9 +2190,6 @@
       reader.readAsText(file);
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // PLAY RACE
-    // ═══════════════════════════════════════════════════════════════
     function playRace(onComplete) {
       if (athletes.length === 0) return;
 
@@ -2312,9 +2384,6 @@
       }, initialPause);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // DOWNLOAD VIDEO
-    // ═══════════════════════════════════════════════════════════════
     async function downloadVideo() {
       if (athletes.length === 0) return;
       if (isRecording) return;
