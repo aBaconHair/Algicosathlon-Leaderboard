@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Algicosathlon Leaderboard Maker</title>
   <style>
     :root {
@@ -21,17 +21,17 @@
       --weight-elim: 800;
       --style-elim: normal;
 
-      /* BACKGROUND */
       --bg-color: #0d1117;
       --bg-image: none;
 
-      /* TEXT STROKE */
       --stroke-width-placement: 0px;
       --stroke-color-placement: #000000;
       --stroke-width-names: 0px;
       --stroke-color-names: #000000;
       --stroke-width-elim: 0px;
       --stroke-color-elim: #000000;
+
+      --bar-spacing: 8px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,6 +40,7 @@
       font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
       background: #0d1117;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -84,6 +85,11 @@
       margin-bottom: 1rem;
     }
 
+    .input-row.button-row {
+      padding: 0.75rem 1.25rem;
+      align-items: center;
+    }
+
     .field { display: flex; flex-direction: column; gap: 0.35rem; }
 
     .field label {
@@ -110,6 +116,7 @@
     .field input:focus { border-color: #f1c40f; }
     .field input[type="text"] { width: 150px; }
     .field input[type="number"] { width: 90px; }
+    .field input.reward-input { width: 110px; }
 
     .field input[type="color"] {
       width: 60px;
@@ -170,6 +177,21 @@
     .btn-load:hover { background: #14b8a6; }
     .btn-export { background: #ea580c; color: white; }
     .btn-export:hover { background: #f97316; }
+    .btn-sign {
+      background: #30363d;
+      color: #f0f6fc;
+      border: 1px solid #30363d;
+      padding: 0.55rem 0.7rem;
+      font-size: 0.9rem;
+      min-width: 40px;
+    }
+    .btn-sign:hover { background: #484f58; }
+    .btn-apply-reward {
+      background: #0891b2;
+      color: white;
+      font-weight: 700;
+    }
+    .btn-apply-reward:hover { background: #06b6d4; }
 
     .btn-play {
       background: #f1c40f;
@@ -205,6 +227,15 @@
       border: 1px solid #30363d;
     }
     .btn-reset:hover { background: #30363d; }
+
+    .btn-folder {
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      padding: 0.42rem 0.7rem;
+      font-size: 0.85rem;
+    }
+    .btn-folder:hover { background: #30363d; color: #f0f6fc; }
 
     .speed-row {
       display: flex;
@@ -255,6 +286,20 @@
       font-family: inherit;
     }
     .speed-field select:focus { border-color: #f1c40f; }
+
+    .custom-font-input {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      padding: 0.42rem 0.6rem;
+      color: #f0f6fc;
+      font-size: 0.82rem;
+      outline: none;
+      width: 120px;
+      font-family: inherit;
+    }
+    .custom-font-input:focus { border-color: #f1c40f; }
+    .custom-font-input::placeholder { color: #484f58; }
 
     .speed-unit { color: #6e7681; font-size: 0.85rem; }
 
@@ -316,6 +361,18 @@
       border: 2px solid #161b22;
       box-shadow: 0 0 6px rgba(241, 196, 15, 0.5);
     }
+
+    .size-field input[type="number"] {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      padding: 0.4rem 0.6rem;
+      color: #f0f6fc;
+      font-size: 0.9rem;
+      width: 70px;
+      outline: none;
+    }
+    .size-field input[type="number"]:focus { border-color: #f1c40f; }
 
     .size-value {
       color: #f1c40f;
@@ -574,7 +631,7 @@
     .bar-row {
       display: flex;
       align-items: center;
-      margin-bottom: 0.5rem;
+      margin-bottom: var(--bar-spacing);
       padding: 0.15rem 0;
     }
 
@@ -663,6 +720,21 @@
       paint-order: stroke fill;
     }
 
+    .bar-img-btn {
+      background: transparent;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      border-radius: 0.35rem;
+      padding: 3px 7px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-left: 6px;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .bar-img-btn:hover { background: #21262d; color: #f0f6fc; border-color: #484f58; }
+
     .empty-state {
       text-align: center;
       color: #6e7681;
@@ -685,6 +757,7 @@
       padding: 0.5rem 0 0.5rem 0;
       overflow: hidden;
       height: 100vh;
+      height: 100dvh;
     }
     .race-overlay.active { display: flex; }
 
@@ -722,7 +795,7 @@
       paint-order: stroke fill;
       font-size: clamp(
         calc(0.9rem * var(--size-placement)),
-        calc(85vh / var(--n, 8) * 0.48 * var(--size-placement)),
+        calc(85dvh / var(--n, 8) * 0.48 * var(--size-placement)),
         calc(3.6rem * var(--size-placement))
       );
     }
@@ -741,7 +814,7 @@
       align-items: stretch;
       will-change: transform;
       position: relative;
-      overflow: hidden;
+      margin-bottom: var(--bar-spacing);
     }
 
     .race-bar-track {
@@ -769,25 +842,36 @@
       background-repeat: no-repeat;
     }
 
-    .race-bar-fill-content {
+    .race-bar-ghost {
       position: absolute;
-      right: 16px;
+      left: 0;
       top: 0;
       bottom: 0;
-      display: flex;
-      align-items: center;
-      white-space: nowrap;
+      width: 0%;
+      z-index: 10;
+      pointer-events: none;
+      will-change: width;
+    }
+
+    .race-bar-points {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
       color: #0d1117;
       font-weight: var(--weight-names);
       font-style: var(--style-names);
-      text-shadow: 0 1px 1px rgba(255,255,255,0.25);
       font-family: var(--font-names);
       -webkit-text-stroke: var(--stroke-width-names) var(--stroke-color-names);
       paint-order: stroke fill;
+      text-shadow: 0 1px 1px rgba(255,255,255,0.25);
+      white-space: nowrap;
+      padding: 0;
       font-size: clamp(
-        calc(1rem * var(--size-names)),
-        calc(82vh / var(--n, 8) * 0.42 * var(--size-names)),
-        calc(3.4rem * var(--size-names))
+        calc(1.1rem * var(--size-names)),
+        calc(82dvh / var(--n, 8) * 0.52 * var(--size-names)),
+        calc(4.4rem * var(--size-names))
       );
     }
 
@@ -817,7 +901,7 @@
       paint-order: stroke fill;
       font-size: clamp(
         calc(1.1rem * var(--size-names)),
-        calc(82vh / var(--n, 8) * 0.52 * var(--size-names)),
+        calc(82dvh / var(--n, 8) * 0.52 * var(--size-names)),
         calc(4.4rem * var(--size-names))
       );
     }
@@ -835,7 +919,7 @@
       paint-order: stroke fill;
       font-size: clamp(
         calc(1rem * var(--size-elim)),
-        calc(82vh / var(--n, 8) * 0.5 * var(--size-elim)),
+        calc(82dvh / var(--n, 8) * 0.5 * var(--size-elim)),
         calc(4rem * var(--size-elim))
       );
     }
@@ -954,6 +1038,58 @@
     .paste-field textarea:focus { border-color: #8957e5; }
     .paste-field textarea::placeholder { color: #484f58; }
 
+    .paste-with-linenums {
+      display: flex;
+      gap: 0.4rem;
+      align-items: stretch;
+    }
+    .paste-linenums {
+      background: transparent;
+      color: #484f58;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      padding: 0.6rem 0;
+      text-align: right;
+      user-select: none;
+      overflow: hidden;
+      flex-shrink: 0;
+      min-width: 1.8rem;
+      pointer-events: none;
+      border: 1px solid transparent;
+      white-space: pre;
+    }
+    .paste-with-linenums textarea {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .color-preview {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      max-height: 160px;
+      overflow-y: auto;
+      margin-top: 0.35rem;
+      color: #f0f6fc;
+    }
+    .color-preview-line {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .color-preview-num {
+      color: #484f58;
+      user-select: none;
+      display: inline-block;
+      min-width: 1.8rem;
+      margin-right: 0.25rem;
+    }
+
     .modal-footer {
       display: flex;
       justify-content: flex-end;
@@ -964,6 +1100,39 @@
     }
 
     #modalExport { margin-right: auto; }
+
+    @media (orientation: landscape) and (max-height: 600px) {
+      body {
+        padding: 0.5rem;
+        align-items: flex-start;
+      }
+      .app {
+        padding: 1rem;
+        border-radius: 0.75rem;
+        max-width: 100%;
+      }
+      h1 { font-size: 1.4rem; }
+      .subhead { font-size: 0.8rem; margin-bottom: 1rem; }
+      .input-row, .speed-row, .size-row, .style-row, .bg-row, .stroke-row {
+        padding: 0.6rem 0.9rem;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+      }
+      .field input[type="text"], .field input[type="number"] {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.55rem;
+      }
+      .field input[type="text"] { width: 120px; }
+      .field input[type="number"] { width: 70px; }
+      .field input.reward-input { width: 85px; }
+      .btn { font-size: 0.8rem; padding: 0.45rem 0.8rem; }
+      .btn-play, .btn-download { font-size: 0.9rem; padding: 0.55rem 1.2rem; }
+      .size-field input[type="range"] { width: 90px; }
+      .speed-field select { min-width: 110px; font-size: 0.8rem; }
+      .custom-font-input { width: 90px; font-size: 0.75rem; }
+      .modal { max-width: 100%; border-radius: 0.5rem; }
+      .modal-body { padding: 0.75rem 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -983,12 +1152,14 @@
     </div>
     <div class="field">
       <label>Points</label>
-      <input type="number" id="inputPoints" placeholder="0" min="0" value="0">
+      <input type="text" id="inputPoints" placeholder="0" inputmode="decimal" value="0">
     </div>
     <div class="field">
       <label>Rewarded Points</label>
-      <input type="number" id="inputReward" placeholder="0" min="0" value="0">
+      <input type="text" id="inputReward" placeholder="0" inputmode="decimal" value="0" class="reward-input">
     </div>
+    <button class="btn btn-sign" id="btnToggleSign" title="Toggle positive/negative">±</button>
+    <button class="btn btn-apply-reward" id="btnApplyReward" title="Apply EVERY athlete's rewarded points to their base points (resets rewarded to 0)">➕ Add Reward</button>
     <div class="checkbox-field">
       <input type="checkbox" id="inputEliminated">
       <span>Eliminated?</span>
@@ -997,10 +1168,13 @@
       <input type="checkbox" id="inputAlreadyEliminated">
       <span>Already Eliminated?</span>
     </div>
+    <button class="btn btn-advanced" id="btnAdvanced">Advanced</button>
+  </div>
+
+  <div class="input-row button-row">
     <button class="btn btn-add" id="btnAdd">Add</button>
     <button class="btn btn-update" id="btnUpdate">Update</button>
     <button class="btn btn-delete" id="btnDelete">🗑️ Delete</button>
-    <button class="btn btn-advanced" id="btnAdvanced">Advanced</button>
     <button class="btn btn-save" id="btnSave">Save</button>
     <button class="btn btn-load" id="btnLoad">Load</button>
     <input type="file" id="fileLoad" accept=".json,application/json" style="display:none;">
@@ -1050,6 +1224,9 @@
         <option value="sine">Sine</option>
       </select>
     </div>
+  </div>
+
+  <div class="speed-row">
     <div class="speed-field">
       <label>Placement Font</label>
       <select id="inputFontPlacement">
@@ -1064,6 +1241,7 @@
         <option value="Impact, sans-serif">Impact</option>
         <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
       </select>
+      <input type="text" id="inputCustomFontPlacement" class="custom-font-input" placeholder="Or type font name">
     </div>
     <div class="speed-field">
       <label>Names &amp; Points Font</label>
@@ -1079,6 +1257,7 @@
         <option value="Impact, sans-serif">Impact</option>
         <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
       </select>
+      <input type="text" id="inputCustomFontNames" class="custom-font-input" placeholder="Or type font name">
     </div>
     <div class="speed-field">
       <label>Eliminated Font</label>
@@ -1094,6 +1273,7 @@
         <option value="Impact, sans-serif">Impact</option>
         <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
       </select>
+      <input type="text" id="inputCustomFontElim" class="custom-font-input" placeholder="Or type font name">
     </div>
   </div>
 
@@ -1112,6 +1292,11 @@
       <label>Eliminated Size</label>
       <input type="range" id="inputSizeElim" min="0.5" max="2.5" step="0.05" value="1">
       <span class="size-value" id="sizeElimVal">1.00×</span>
+    </div>
+    <div class="size-field">
+      <label>Bar Spacing</label>
+      <input type="number" id="inputBarSpacing" value="8" min="0" max="60" step="1">
+      <span class="size-value">px</span>
     </div>
   </div>
 
@@ -1153,6 +1338,7 @@
     <div class="bg-field">
       <label>Background Image URL</label>
       <input type="text" id="inputBgImage" placeholder="Add the image address">
+      <button class="btn btn-folder" id="btnBgImagePicker" title="Pick image from computer">📁</button>
     </div>
   </div>
 
@@ -1218,9 +1404,8 @@
     </div>
     <div class="modal-body">
       <div class="modal-hint">
-        Copy columns from Excel and paste each one into the matching textarea below.
-        Lines match by position: line 1 of every column = one athlete.<br>
-        <strong style="color:#c9d1d9;">Image:</strong> paste an image URL — it will fill the <em>bar</em> and also mask the <em>athlete name text</em>. Leave empty for a solid color bar and normal text.<br>
+        Copy columns from Excel and paste each one into the matching textarea below. Lines match by position: line 1 of every column = one athlete.<br>
+        <strong style="color:#c9d1d9;">Image:</strong> paste an image URL — it will fill the <em>bar</em> and also mask the <em>athlete name text</em>. Leave empty for a solid color bar and normal text. If the color is left blank too, the bar becomes fully transparent (image only).<br>
         <strong style="color:#c9d1d9;">Colors:</strong> use hex (with or without <code>#</code>), an HTML color name (<code>Navy</code>, <code>Brown</code>, <code>RebeccaPurple</code>…), <em>or</em> a gradient:<br>
         &nbsp;&nbsp;<code>Gradient(Red,Blue)[Linear90]</code> · <code>Gradient(Blue,Purple,Pink)[Linear45]</code> · <code>Gradient(Red,Yellow,Green)[Radial]</code><br>
         &nbsp;&nbsp;(Any number of colors. <code>[LinearN]</code> = angle in degrees, <code>[Radial]</code> = circular. Omit brackets → 90° linear.)<br>
@@ -1231,27 +1416,46 @@
       <div class="paste-grid">
         <div class="paste-field">
           <label>Athlete Names</label>
-          <textarea id="pasteNames" placeholder="Navy&#10;Brown&#10;Indigo"></textarea>
+          <div class="paste-with-linenums">
+            <div class="paste-linenums" id="pasteLinenumsNames">1</div>
+            <textarea id="pasteNames" spellcheck="false" placeholder="Navy&#10;Brown&#10;Indigo"></textarea>
+          </div>
         </div>
         <div class="paste-field">
           <label>Athlete Image (URL)</label>
-          <textarea id="pasteImages" placeholder="(Input the image address, the image will be displayed as a bar)"></textarea>
+          <div class="paste-with-linenums">
+            <div class="paste-linenums" id="pasteLinenumsImages">1</div>
+            <textarea id="pasteImages" spellcheck="false" placeholder="(Input the image address, the image will be displayed as a bar)"></textarea>
+          </div>
         </div>
         <div class="paste-field">
           <label>Athlete Color</label>
-          <textarea id="pasteColors" placeholder="000080&#10;Brown&#10;MidnightBlue&#10;#F1C40F&#10;Gradient(Red,Blue)[Linear90]&#10;Gradient(Blue,Purple,Pink)[Radial]"></textarea>
+          <div class="paste-with-linenums">
+            <div class="paste-linenums" id="pasteLinenumsColors">1</div>
+            <textarea id="pasteColors" spellcheck="false" placeholder="000080&#10;Brown&#10;MidnightBlue&#10;#F1C40F&#10;Gradient(Red,Blue)[Linear90]&#10;Gradient(Blue,Purple,Pink)[Radial]"></textarea>
+          </div>
+          <div class="color-preview" id="pasteColorsPreview"></div>
         </div>
         <div class="paste-field">
           <label>Athlete Points</label>
-          <textarea id="pastePoints" placeholder="0&#10;10&#10;20"></textarea>
+          <div class="paste-with-linenums">
+            <div class="paste-linenums" id="pasteLinenumsPoints">1</div>
+            <textarea id="pastePoints" spellcheck="false" placeholder="0&#10;10&#10;20"></textarea>
+          </div>
         </div>
         <div class="paste-field">
           <label>Athlete Rewarded Points</label>
-          <textarea id="pasteReward" placeholder="5&#10;90&#10;30"></textarea>
+          <div class="paste-with-linenums">
+            <div class="paste-linenums" id="pasteLinenumsReward">1</div>
+            <textarea id="pasteReward" spellcheck="false" placeholder="5&#10;90&#10;30"></textarea>
+          </div>
         </div>
         <div class="paste-field">
           <label>Eliminated</label>
-          <textarea id="pasteElim" placeholder="Already Eliminated&#10;Eliminated&#10;Custom:&quot;DQ&quot;(red)&#10;Already Custom:&quot;DNS&quot;(Crimson)"></textarea>
+          <div class="paste-with-linenums">
+            <div class="paste-linenums" id="pasteLinenumsElim">1</div>
+            <textarea id="pasteElim" spellcheck="false" placeholder="Already Eliminated&#10;Eliminated&#10;Custom:&quot;DQ&quot;(red)&#10;Already Custom:&quot;DNS&quot;(Crimson)"></textarea>
+          </div>
         </div>
       </div>
     </div>
@@ -1264,12 +1468,16 @@
   </div>
 </div>
 
+<input type="file" id="fileBgPicker" accept="image/*" style="display:none;">
+<input type="file" id="fileAthletePicker" accept="image/*" style="display:none;">
+
 <script>
   (function () {
     let athletes = [];
     let nextId = 0;
     let previewMode = 'after';
     let isRecording = false;
+    let pendingImageAthleteId = null;
 
     const makerScreen = document.getElementById('makerScreen');
     const inputName = document.getElementById('inputName');
@@ -1284,7 +1492,12 @@
     const btnAdvanced = document.getElementById('btnAdvanced');
     const btnSave = document.getElementById('btnSave');
     const btnLoad = document.getElementById('btnLoad');
+    const btnToggleSign = document.getElementById('btnToggleSign');
+    const btnApplyReward = document.getElementById('btnApplyReward');
     const fileLoad = document.getElementById('fileLoad');
+    const fileBgPicker = document.getElementById('fileBgPicker');
+    const fileAthletePicker = document.getElementById('fileAthletePicker');
+    const btnBgImagePicker = document.getElementById('btnBgImagePicker');
     const inputSwapDuration = document.getElementById('inputSwapDuration');
     const inputGrowDuration = document.getElementById('inputGrowDuration');
     const inputWaitAfterGrow = document.getElementById('inputWaitAfterGrow');
@@ -1293,9 +1506,13 @@
     const inputFontPlacement = document.getElementById('inputFontPlacement');
     const inputFontNames = document.getElementById('inputFontNames');
     const inputFontElim = document.getElementById('inputFontElim');
+    const inputCustomFontPlacement = document.getElementById('inputCustomFontPlacement');
+    const inputCustomFontNames = document.getElementById('inputCustomFontNames');
+    const inputCustomFontElim = document.getElementById('inputCustomFontElim');
     const inputSizePlacement = document.getElementById('inputSizePlacement');
     const inputSizeNames = document.getElementById('inputSizeNames');
     const inputSizeElim = document.getElementById('inputSizeElim');
+    const inputBarSpacing = document.getElementById('inputBarSpacing');
     const sizePlacementVal = document.getElementById('sizePlacementVal');
     const sizeNamesVal = document.getElementById('sizeNamesVal');
     const sizeElimVal = document.getElementById('sizeElimVal');
@@ -1337,9 +1554,17 @@
     const pasteNames = document.getElementById('pasteNames');
     const pasteImages = document.getElementById('pasteImages');
     const pasteColors = document.getElementById('pasteColors');
+    const pasteColorsPreview = document.getElementById('pasteColorsPreview');
     const pastePoints = document.getElementById('pastePoints');
     const pasteReward = document.getElementById('pasteReward');
     const pasteElim = document.getElementById('pasteElim');
+
+    const pasteLinenumsNames = document.getElementById('pasteLinenumsNames');
+    const pasteLinenumsImages = document.getElementById('pasteLinenumsImages');
+    const pasteLinenumsColors = document.getElementById('pasteLinenumsColors');
+    const pasteLinenumsPoints = document.getElementById('pasteLinenumsPoints');
+    const pasteLinenumsReward = document.getElementById('pasteLinenumsReward');
+    const pasteLinenumsElim = document.getElementById('pasteLinenumsElim');
 
     function getSwapDuration() {
       const v = parseFloat(inputSwapDuration.value);
@@ -1354,8 +1579,11 @@
       if (isNaN(v) || v < 0) return 1000;
       return v * 1000;
     }
+    function getBarSpacing() {
+      const v = parseFloat(inputBarSpacing.value);
+      return isNaN(v) || v < 0 ? 8 : v;
+    }
 
-    // ─── COLOR NORMALIZATION (hex + HTML names) ────────────────────
     function normalizeColor(raw) {
       if (raw === undefined || raw === null) return null;
       const input = String(raw).trim();
@@ -1396,12 +1624,6 @@
       return normalized || v;
     }
 
-    // ─── GRADIENT SYNTAX PARSER ────────────────────────────────────
-    // Accepts:  Gradient(c1, c2, c3, ...)          → linear 90° by default
-    //           Gradient(c1, c2)[LinearN]           → linear at N degrees
-    //           Gradient(c1, c2)[Radial]            → radial gradient
-    // Colors can be hex (#RRGGBB / RRGGBB) or CSS names.
-    // Returns a CSS gradient string, or null if the input isn't a valid Gradient().
     function parseGradientSyntax(raw) {
       if (raw === undefined || raw === null) return null;
       const str = String(raw).trim();
@@ -1414,7 +1636,6 @@
       if (rawColors.length < 2) return null;
 
       const colors = rawColors.map(c => resolveCssColor(c, c));
-
       const modeRaw = (m[2] || 'Linear90').trim();
 
       if (/^radial$/i.test(modeRaw)) {
@@ -1427,12 +1648,9 @@
         return `linear-gradient(${deg}deg, ${colors.join(', ')})`;
       }
 
-      // Unknown bracket content → default to linear 90
       return `linear-gradient(90deg, ${colors.join(', ')})`;
     }
 
-    // Converts a CSS gradient string back into the compact "Gradient(...)[...]" syntax.
-    // Returns null if the input isn't a CSS gradient.
     function cssToGradientSyntax(cssStr) {
       if (!cssStr || !/gradient/i.test(cssStr)) return null;
 
@@ -1452,8 +1670,6 @@
       return null;
     }
 
-    // Extracts the first solid hex color from a CSS value (for text fills that
-    // can't accept gradients — the "color" CSS property).
     function extractFirstColor(cssStr, fallback) {
       if (!cssStr) return fallback;
       if (!/gradient/i.test(cssStr)) return cssStr;
@@ -1461,7 +1677,6 @@
       return m ? m[0] : fallback;
     }
 
-    // ─── ELIMINATED CELL PARSER ─────────────────────────────────────
     function parseElimCell(raw) {
       const str = (raw || '').trim();
       const lower = str.toLowerCase();
@@ -1494,7 +1709,6 @@
       };
     }
 
-    // ─── EASING MAPS ───────────────────────────────────────────────
     const CSS_EASINGS = {
       linear:    'linear',
       ease:      'ease',
@@ -1542,10 +1756,21 @@
     }
     function getGrowEasingType() { return inputEaseGrow.value || 'linear'; }
 
+    function escapeFontFamily(name) {
+      if (!name) return '';
+      const t = String(name).trim();
+      if (!t) return '';
+      if (t.includes(',') || t.includes('"') || t.includes("'")) return t;
+      return `"${t}"`;
+    }
+
     function applyFonts() {
-      document.documentElement.style.setProperty('--font-placement', inputFontPlacement.value);
-      document.documentElement.style.setProperty('--font-names', inputFontNames.value);
-      document.documentElement.style.setProperty('--font-elim', inputFontElim.value);
+      const customPlace = escapeFontFamily(inputCustomFontPlacement.value);
+      const customNames = escapeFontFamily(inputCustomFontNames.value);
+      const customElim = escapeFontFamily(inputCustomFontElim.value);
+      document.documentElement.style.setProperty('--font-placement', customPlace || inputFontPlacement.value);
+      document.documentElement.style.setProperty('--font-names', customNames || inputFontNames.value);
+      document.documentElement.style.setProperty('--font-elim', customElim || inputFontElim.value);
     }
 
     function applySizes() {
@@ -1558,6 +1783,11 @@
       sizePlacementVal.textContent = p.toFixed(2) + '×';
       sizeNamesVal.textContent = n.toFixed(2) + '×';
       sizeElimVal.textContent = e.toFixed(2) + '×';
+    }
+
+    function applyBarSpacing() {
+      const px = getBarSpacing();
+      document.documentElement.style.setProperty('--bar-spacing', px + 'px');
     }
 
     function styleToCss(value) {
@@ -1636,9 +1866,7 @@
     syncColorPair(inputStrokeColorNames, inputStrokeColorNamesPicker);
     syncColorPair(inputStrokeColorElim, inputStrokeColorElimPicker);
 
-    function checkAndEliminate() {
-      return;
-    }
+    function checkAndEliminate() { return; }
 
     function ordinal(n) {
       const s = ['th', 'st', 'nd', 'rd'];
@@ -1670,33 +1898,25 @@
       return previewMode === 'after' ? a.totalPoints : a.basePoints;
     }
 
-    // Applies either the athlete's color/gradient or image URL to a bar-fill element.
-    function applyBarAppearance(el, athlete) {
-      if (athlete.imageUrl) {
-        el.style.background = 'transparent';
-        el.style.backgroundImage = `url("${athlete.imageUrl.replace(/"/g, '\\"')}")`;
-        el.style.backgroundSize = '100% 100%';
-        el.style.backgroundPosition = 'center';
-        el.style.backgroundRepeat = 'no-repeat';
-      } else {
-        // Clear image-specific properties first
-        el.style.backgroundImage = '';
-        el.style.backgroundSize = '';
-        el.style.backgroundPosition = '';
-        el.style.backgroundRepeat = '';
-        el.style.background = athlete.color || '#f1c40f';
-      }
+    function cssUrl(url) {
+      return `url("${url.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\a ')}")`;
     }
 
-    // Applies the image mask to an athlete name element, or clears it.
+    function applyBarAppearance(el, athlete) {
+      el.style.backgroundImage = athlete.imageUrl ? cssUrl(athlete.imageUrl) : '';
+      el.style.backgroundColor = athlete.color || (athlete.imageUrl ? 'transparent' : '#f1c40f');
+      el.style.backgroundSize = '100% 100%';
+      el.style.backgroundPosition = 'center';
+      el.style.backgroundRepeat = 'no-repeat';
+    }
+
     function applyNameAppearance(el, athlete) {
       if (athlete.imageUrl) {
-        el.style.backgroundImage = `url("${athlete.imageUrl.replace(/"/g, '\\"')}")`;
+        el.style.backgroundImage = cssUrl(athlete.imageUrl);
         el.classList.add('masked');
       } else {
         el.style.backgroundImage = '';
         el.classList.remove('masked');
-        // Names can't render gradients, so pick the first color of a gradient
         el.style.color = extractFirstColor(athlete.color, '#f1c40f');
       }
     }
@@ -1747,7 +1967,20 @@
 
           row.appendChild(name);
 
-          if (athlete.eliminated) {
+          const imgBtn = document.createElement('button');
+          imgBtn.className = 'bar-img-btn';
+          imgBtn.textContent = '📁';
+          imgBtn.title = 'Set image from computer';
+          imgBtn.type = 'button';
+          imgBtn.addEventListener('click', () => {
+            pendingImageAthleteId = athlete.id;
+            fileAthletePicker.value = '';
+            fileAthletePicker.click();
+          });
+          row.appendChild(imgBtn);
+
+          if (athlete.eliminated &&
+              (previewMode === 'after' || athlete.showElimAtStart)) {
             const tag = document.createElement('span');
             tag.className = 'elim-tag';
             tag.textContent = athlete.elimText || 'ELIMINATED';
@@ -1864,6 +2097,47 @@
       updatePlayButtons();
     }
 
+    function toggleRewardSign() {
+      const v = inputReward.value.trim();
+      if (!v) { inputReward.value = '-'; return; }
+      if (v.startsWith('-')) {
+        inputReward.value = v.substring(1);
+      } else if (v.startsWith('+')) {
+        inputReward.value = '-' + v.substring(1);
+      } else {
+        inputReward.value = '-' + v;
+      }
+    }
+
+    // NEW: Apply EVERY athlete's rewarded points into their base points.
+    function applyRewardToPoints() {
+      if (athletes.length === 0) {
+        alert('No athletes yet. Add some first.');
+        return;
+      }
+      const withReward = athletes.filter(a => a.rewardPoints !== 0);
+      if (withReward.length === 0) {
+        alert('No rewarded points to apply — every athlete already has 0 rewarded points.');
+        return;
+      }
+      if (!confirm(
+        `Apply rewarded points to base points for ALL ${athletes.length} athlete(s)?\n\n` +
+        `Each athlete's rewarded points will be moved into their points, ` +
+        `and their rewarded points will reset to 0.`
+      )) return;
+
+      athletes.forEach(a => {
+        a.basePoints += a.rewardPoints;
+        a.rewardPoints = 0;
+        a.totalPoints = a.basePoints;
+      });
+
+      // Clear the reward input to make it obvious the operation happened.
+      inputReward.value = '';
+      renderMaker();
+      updatePlayButtons();
+    }
+
     function resetAll() {
       if (athletes.length > 0 && !confirm('Remove all athletes?')) return;
       athletes = [];
@@ -1891,6 +2165,8 @@
     function openAdvanced() {
       advancedModal.classList.add('active');
       pasteNames.focus();
+      syncColorPreview();
+      syncAllLinenums();
     }
     function closeAdvanced() {
       advancedModal.classList.remove('active');
@@ -1907,6 +2183,104 @@
       if (e.key === 'Escape' && advancedModal.classList.contains('active')) {
         closeAdvanced();
       }
+    });
+
+    function buildLinenumsHTML(el) {
+      const lines = Math.max(1, (el.value.match(/\n/g) || []).length + 1);
+      let html = '';
+      for (let i = 1; i <= lines; i++) html += `<div>${i}</div>`;
+      return html;
+    }
+
+    function syncLinenums(textarea, gutter) {
+      gutter.innerHTML = buildLinenumsHTML(textarea);
+    }
+
+    function attachLinenums(textarea, gutter) {
+      textarea.addEventListener('input', () => syncLinenums(textarea, gutter));
+      textarea.addEventListener('scroll', () => { gutter.scrollTop = textarea.scrollTop; });
+      syncLinenums(textarea, gutter);
+    }
+
+    attachLinenums(pasteNames, pasteLinenumsNames);
+    attachLinenums(pasteImages, pasteLinenumsImages);
+    attachLinenums(pastePoints, pasteLinenumsPoints);
+    attachLinenums(pasteReward, pasteLinenumsReward);
+    attachLinenums(pasteElim, pasteLinenumsElim);
+
+    pasteColors.addEventListener('input', () => syncLinenums(pasteColors, pasteLinenumsColors));
+    pasteColors.addEventListener('scroll', () => {
+      pasteLinenumsColors.scrollTop = pasteColors.scrollTop;
+    });
+    syncLinenums(pasteColors, pasteLinenumsColors);
+
+    function syncAllLinenums() {
+      syncLinenums(pasteNames, pasteLinenumsNames);
+      syncLinenums(pasteImages, pasteLinenumsImages);
+      syncLinenums(pasteColors, pasteLinenumsColors);
+      syncLinenums(pastePoints, pasteLinenumsPoints);
+      syncLinenums(pasteReward, pasteLinenumsReward);
+      syncLinenums(pasteElim, pasteLinenumsElim);
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function syncColorPreview() {
+      const lines = pasteColors.value.split('\n');
+      let html = '';
+      lines.forEach((line, i) => {
+        const num = `<span class="color-preview-num">${i+1}.</span>`;
+        if (!line.trim()) {
+          html += `<div class="color-preview-line">${num}&nbsp;</div>`;
+          return;
+        }
+        let cssColor = null;
+        const grad = parseGradientSyntax(line);
+        if (grad) {
+          cssColor = extractFirstColor(grad, null);
+        } else {
+          cssColor = normalizeColor(line);
+        }
+        const style = cssColor ? `color: ${cssColor};` : 'color: #f0f6fc;';
+        html += `<div class="color-preview-line">${num} <span style="${style}">${escapeHtml(line)}</span></div>`;
+      });
+      pasteColorsPreview.innerHTML = html;
+    }
+
+    pasteColors.addEventListener('input', syncColorPreview);
+
+    btnBgImagePicker.addEventListener('click', () => {
+      fileBgPicker.value = '';
+      fileBgPicker.click();
+    });
+
+    fileBgPicker.addEventListener('change', () => {
+      const file = fileBgPicker.files && fileBgPicker.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        inputBgImage.value = e.target.result;
+        applyBackground();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    fileAthletePicker.addEventListener('change', () => {
+      const file = fileAthletePicker.files && fileAthletePicker.files[0];
+      if (!file || pendingImageAthleteId === null) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const athlete = athletes.find(a => a.id === pendingImageAthleteId);
+        if (athlete) {
+          athlete.imageUrl = e.target.result;
+          renderMaker();
+        }
+        pendingImageAthleteId = null;
+        fileAthletePicker.value = '';
+      };
+      reader.readAsDataURL(file);
     });
 
     function parseAdvanced() {
@@ -1928,12 +2302,10 @@
         if (!name) continue;
 
         const imageUrl = (images[i] || '').trim() || null;
-
-        // Try gradient first, fall back to solid color, then to gold.
         const color =
           parseGradientSyntax(colors[i]) ||
           normalizeColor(colors[i]) ||
-          '#f1c40f';
+          null;
 
         const basePoints = parseInt(points[i], 10) || 0;
         const rewardPoints = parseInt(rewards[i], 10) || 0;
@@ -1980,12 +2352,10 @@
       pasteImages.value = athletes.map(a => a.imageUrl || '').join('\n');
       pasteColors.value = athletes
         .map(a => {
-          const c = a.color || '#f1c40f';
-          // If it's a gradient CSS string, re-encode it back to Gradient() syntax.
-          const gradSyntax = cssToGradientSyntax(c);
+          if (!a.color) return '';
+          const gradSyntax = cssToGradientSyntax(a.color);
           if (gradSyntax) return gradSyntax;
-          // Otherwise treat as a hex color and export the raw hex form.
-          return c.replace('#', '').toUpperCase();
+          return a.color.replace('#', '').toUpperCase();
         })
         .join('\n');
       pastePoints.value = athletes.map(a => a.basePoints).join('\n');
@@ -2004,6 +2374,8 @@
           return a.showElimAtStart ? 'Already Eliminated' : 'Eliminated';
         })
         .join('\n');
+      syncColorPreview();
+      syncAllLinenums();
     });
 
     modalAppend.addEventListener('click', () => {
@@ -2047,18 +2419,22 @@
         return;
       }
       const data = {
-        version: 4,
+        version: 7,
         savedAt: new Date().toISOString(),
         previewMode: previewMode,
         settings: {
           swapDuration: inputSwapDuration.value,
           growDuration: inputGrowDuration.value,
           waitAfterGrow: inputWaitAfterGrow.value,
+          barSpacing: inputBarSpacing.value,
           easeGrow: inputEaseGrow.value,
           easeSwap: inputEaseSwap.value,
           fontPlacement: inputFontPlacement.value,
           fontNames: inputFontNames.value,
           fontElim: inputFontElim.value,
+          customFontPlacement: inputCustomFontPlacement.value,
+          customFontNames: inputCustomFontNames.value,
+          customFontElim: inputCustomFontElim.value,
           sizePlacement: inputSizePlacement.value,
           sizeNames: inputSizeNames.value,
           sizeElim: inputSizeElim.value,
@@ -2077,7 +2453,7 @@
         athletes: athletes.map(a => ({
           name: a.name,
           imageUrl: a.imageUrl || null,
-          color: a.color,
+          color: a.color || null,
           basePoints: a.basePoints,
           rewardPoints: a.rewardPoints,
           eliminated: a.eliminated,
@@ -2122,11 +2498,15 @@
             if (s.swapDuration !== undefined) inputSwapDuration.value = s.swapDuration;
             if (s.growDuration !== undefined) inputGrowDuration.value = s.growDuration;
             if (s.waitAfterGrow !== undefined) inputWaitAfterGrow.value = s.waitAfterGrow;
+            if (s.barSpacing !== undefined) inputBarSpacing.value = s.barSpacing;
             if (s.easeGrow) inputEaseGrow.value = s.easeGrow;
             if (s.easeSwap) inputEaseSwap.value = s.easeSwap;
             if (s.fontPlacement) inputFontPlacement.value = s.fontPlacement;
             if (s.fontNames) inputFontNames.value = s.fontNames;
             if (s.fontElim) inputFontElim.value = s.fontElim;
+            if (s.customFontPlacement !== undefined) inputCustomFontPlacement.value = s.customFontPlacement;
+            if (s.customFontNames !== undefined) inputCustomFontNames.value = s.customFontNames;
+            if (s.customFontElim !== undefined) inputCustomFontElim.value = s.customFontElim;
             if (s.sizePlacement !== undefined) inputSizePlacement.value = s.sizePlacement;
             if (s.sizeNames !== undefined) inputSizeNames.value = s.sizeNames;
             if (s.sizeElim !== undefined) inputSizeElim.value = s.sizeElim;
@@ -2160,13 +2540,14 @@
             applyStyles();
             applyBackground();
             applyStrokes();
+            applyBarSpacing();
           }
 
           athletes = data.athletes.map(a => ({
             id: nextId++,
             name: String(a.name || 'Unknown'),
             imageUrl: a.imageUrl || null,
-            color: a.color || '#f1c40f',
+            color: a.color || null,
             basePoints: parseInt(a.basePoints, 10) || 0,
             rewardPoints: parseInt(a.rewardPoints, 10) || 0,
             totalPoints: (parseInt(a.basePoints, 10) || 0) + (parseInt(a.rewardPoints, 10) || 0),
@@ -2198,6 +2579,7 @@
       applyStyles();
       applyBackground();
       applyStrokes();
+      applyBarSpacing();
 
       const growEaseCSS = getGrowEasingCSS();
       const swapEaseCSS = getSwapEasingCSS();
@@ -2248,15 +2630,18 @@
         const pctBefore = pctFor(athlete.totalPoints, globalMax);
         fill.style.width = pctBefore + '%';
 
-        const content = document.createElement('div');
-        content.className = 'race-bar-fill-content';
-        const ptsVal = document.createElement('span');
-        ptsVal.textContent = athlete.totalPoints;
-        content.appendChild(ptsVal);
-
-        fill.appendChild(content);
         bg.appendChild(fill);
         track.appendChild(bg);
+
+        const ghost = document.createElement('div');
+        ghost.className = 'race-bar-ghost';
+        ghost.style.width = pctBefore + '%';
+
+        const pointsEl = document.createElement('span');
+        pointsEl.className = 'race-bar-points';
+        pointsEl.textContent = athlete.totalPoints;
+        ghost.appendChild(pointsEl);
+        track.appendChild(ghost);
 
         const infoGroup = document.createElement('div');
         infoGroup.className = 'race-info-group';
@@ -2281,7 +2666,7 @@
         raceBarColumn.appendChild(row);
 
         rowMap.set(athlete.id, {
-          row, fill, content, ptsVal, infoGroup, name, athlete
+          row, fill, ghost, pointsEl, infoGroup, name, athlete
         });
       });
 
@@ -2295,6 +2680,7 @@
         rowMap.forEach(entry => {
           entry.row.style.transition = `transform ${swapDur}s ${swapEaseCSS}, opacity ${swapDur}s ${swapEaseCSS}`;
           entry.fill.style.transition = `width ${growDur}s ${growEaseCSS}`;
+          entry.ghost.style.transition = `width ${growDur}s ${growEaseCSS}`;
           entry.infoGroup.style.transition = `left ${growDur}s ${growEaseCSS}`;
         });
 
@@ -2307,9 +2693,10 @@
           const finalPoints = athlete.basePoints + athlete.rewardPoints;
           const pctAfter = pctFor(finalPoints, globalMax);
           entry.fill.style.width = pctAfter + '%';
+          entry.ghost.style.width = pctAfter + '%';
           entry.infoGroup.style.left = `calc(${pctAfter}% + 14px)`;
 
-          tweenNumber(entry.ptsVal, athlete.basePoints, finalPoints, growDur * 1000, growEaseType);
+          tweenNumber(entry.pointsEl, athlete.basePoints, finalPoints, growDur * 1000, growEaseType);
         });
 
         setTimeout(() => {
@@ -2389,7 +2776,11 @@
       if (isRecording) return;
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-        alert('Your browser does not support screen capture.\n\nPlease use Chrome, Edge, or Firefox on a secure context (https:// or localhost).');
+        const isMobile = /Android|iPhone|iPad|iPod|Mobile|Windows Phone|Opera Mini|IEMobile/i.test(navigator.userAgent);
+        const msg = isMobile
+          ? '📵 Screen capture is not supported on mobile browsers (Chrome, Safari, Firefox on phones/tablets).\n\nPlease open this page on a desktop or laptop browser (Chrome, Edge, or Firefox) and use the "Download Video" button there.'
+          : '⚠️ Your browser does not support screen capture.\n\nPlease use a recent desktop version of Chrome, Edge, or Firefox. (Some browsers like Safari on macOS still do not support it.)';
+        alert(msg);
         return;
       }
 
@@ -2510,6 +2901,8 @@
     btnReset.addEventListener('click', resetAll);
     btnPlay.addEventListener('click', () => playRace());
     btnDownload.addEventListener('click', downloadVideo);
+    btnToggleSign.addEventListener('click', toggleRewardSign);
+    btnApplyReward.addEventListener('click', applyRewardToPoints);
 
     inputName.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); addAthlete(); }
@@ -2518,10 +2911,15 @@
     inputFontPlacement.addEventListener('change', applyFonts);
     inputFontNames.addEventListener('change', applyFonts);
     inputFontElim.addEventListener('change', applyFonts);
+    inputCustomFontPlacement.addEventListener('input', applyFonts);
+    inputCustomFontNames.addEventListener('input', applyFonts);
+    inputCustomFontElim.addEventListener('input', applyFonts);
 
     inputSizePlacement.addEventListener('input', applySizes);
     inputSizeNames.addEventListener('input', applySizes);
     inputSizeElim.addEventListener('input', applySizes);
+
+    inputBarSpacing.addEventListener('input', applyBarSpacing);
 
     inputStylePlacement.addEventListener('change', applyStyles);
     inputStyleNames.addEventListener('change', applyStyles);
@@ -2541,8 +2939,11 @@
     applyStyles();
     applyBackground();
     applyStrokes();
+    applyBarSpacing();
     renderMaker();
     updatePlayButtons();
+    syncColorPreview();
+    syncAllLinenums();
   })();
 </script>
 </body>
