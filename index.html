@@ -2778,7 +2778,7 @@
       if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
         const isMobile = /Android|iPhone|iPad|iPod|Mobile|Windows Phone|Opera Mini|IEMobile/i.test(navigator.userAgent);
         const msg = isMobile
-          ? '📵 Screen capture is not supported on mobile browsers (Chrome, Safari, Firefox on phones/tablets).\n\nPlease open this page on a desktop or laptop browser (Chrome, Edge, or Firefox) and use the "Download Video" button there.'
+          ? '📵 Screen capture is not supported on mobile browsers (Chrome, Safari, Firefox on phones/tablets).\n\nPlease open this page on a desktop or laptop browser. If not, consider use a screen recorder.'
           : '⚠️ Your browser does not support screen capture.\n\nPlease use a recent desktop version of Chrome, Edge, or Firefox. (Some browsers like Safari on macOS still do not support it.)';
         alert(msg);
         return;
